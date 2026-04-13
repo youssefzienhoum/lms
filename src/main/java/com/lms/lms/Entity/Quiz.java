@@ -1,0 +1,37 @@
+package com.lms.lms.Entity;
+import jakarta.persistence.*;
+
+
+import java.math.BigDecimal;
+
+import java.util.List;
+
+@Entity
+@Table(name = "quizzes")
+public class Quiz {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "lesson_id")
+    private Lesson lesson;
+    
+    @Column(nullable = false)
+    private String title;
+    
+    @SuppressWarnings("unused")
+    private Integer timeLimit;
+    
+    @Column(name = "total_questions")
+    private Integer totalQuestions;
+    
+    @Column(precision = 5, scale = 2)
+    private BigDecimal passingScore = new BigDecimal("70.00");
+    
+    @Column(name = "is_published")
+    private boolean published = false;
+    
+    @OneToMany(mappedBy = "quiz")
+    private List<Question> questions;
+};
+
