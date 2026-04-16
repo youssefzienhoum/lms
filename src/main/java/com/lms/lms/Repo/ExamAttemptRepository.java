@@ -10,5 +10,6 @@ import java.util.List;
 public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> {
     List<ExamAttempt> findByStudentAndCourseIdOrderByAttemptNumberDesc(User student, Long courseId);
     
-    List<ExamAttempt> findByCourseIdAndIsPassedTrue(Long courseId);
+
+    List<ExamAttempt> findByCourseIdAndPassedTrue(Long courseId);
 }
