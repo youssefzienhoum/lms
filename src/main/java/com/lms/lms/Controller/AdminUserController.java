@@ -5,7 +5,7 @@ import com.lms.lms.DTOS.UserRespones;
 import com.lms.lms.DTOS.UpdateRoleRequest;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class AdminUserController {
     // GET ALL USERS
     // =========================
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+   
     public List<UserRespones> getAllUsers() {
         return adminUserService.getAllUsers();
     }
@@ -30,7 +30,6 @@ public class AdminUserController {
     // GET STUDENTS
     // =========================
     @GetMapping("/students")
-    @PreAuthorize("hasRole('ADMIN')")
     public List<UserRespones> getStudents() {
         return adminUserService.getStudents();
     }
@@ -39,7 +38,7 @@ public class AdminUserController {
     // GET INSTRUCTORS
     // =========================
     @GetMapping("/instructors")
-    @PreAuthorize("hasRole('ADMIN')")
+   
     public List<UserRespones> getInstructors() {
         return adminUserService.getInstructors();
     }
@@ -48,7 +47,6 @@ public class AdminUserController {
     // BLOCK USER
     // =========================
     @PutMapping("/block/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public void block(@PathVariable Long id) {
         adminUserService.blockUser(id);
     }
@@ -57,7 +55,7 @@ public class AdminUserController {
     // UNBLOCK USER
     // =========================
     @PutMapping("/unblock/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+   
     public void unblock(@PathVariable Long id) {
         adminUserService.unblockUser(id);
     }
@@ -66,7 +64,7 @@ public class AdminUserController {
     // DELETE USER
     // =========================
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+   
     public void delete(@PathVariable Long id) {
         adminUserService.deleteUser(id);
     }
@@ -75,7 +73,7 @@ public class AdminUserController {
     // CHANGE ROLE
     // =========================
   @PutMapping("/role/{id}")
-@PreAuthorize("hasRole('ADMIN')")
+
 public void changeRole(@PathVariable Long id,
                        @RequestBody UpdateRoleRequest request) {
     adminUserService.changeRole(id, request.role());
