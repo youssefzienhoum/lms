@@ -118,7 +118,7 @@ public class CourseService implements ICourseService {
     }
     @Override
     public List<CourseResponseDto> getInstructorCourses(Long instructorId) {
-        List<Course> courses = courseRepository.findByInstructorid(instructorId);
+        List<Course> courses = courseRepository.findByInstructor(instructorId);
 
         return courses.stream().map(c -> {
             CourseResponseDto response = new CourseResponseDto();

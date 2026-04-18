@@ -22,5 +22,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     // Free courses
     List<Course> findByFreeTrueAndPublishedTrue();
 
-    List<Course> findByInstructorid(Long instructorId);
+    List<Course> findByInstructor(Long instructor);
 }
