@@ -5,7 +5,6 @@ import com.lms.lms.DTOS.AttemptResultResponse;
 import com.lms.lms.DTOS.CourseDTO;
 import com.lms.lms.DTOS.CourseRequestDto;
 import com.lms.lms.DTOS.CourseResponseDto;
-import com.lms.lms.DTOS.EnrollmentResponse;
 import com.lms.lms.DTOS.ExamResponse;
 import com.lms.lms.DTOS.ExamScoreResponse;
 import com.lms.lms.DTOS.ExamSubmissionRequest;
@@ -36,13 +35,11 @@ import com.lms.lms.Repo.QuizAttemptRepository;
 import com.lms.lms.Repo.QuizRepository;
 import com.lms.lms.Repo.UserRepository;
 import com.lms.lms.ServiceAbstraction.ICourseService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -50,7 +47,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
@@ -238,37 +234,40 @@ public class CourseService implements ICourseService {
     }
 
     // Enroll in a course
-    public EnrollmentResponse enrollInCourse(Long courseId) {
-        User student = getLoggedInStudent();
 
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+//     public EnrollmentResponse enrollInCourse(Long courseId) {
+//         User student = getLoggedInStudent();
 
-        if (!course.isPublished()) {
-            throw new RuntimeException("Course is not available for enrollment");
-        }
+//         Course course = courseRepository.findById(courseId)
+//                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        Optional<Enrollment> existing = enrollmentRepository
-                .findByStudentIdAndCourseId(student.getId(), courseId);
-        if (existing.isPresent()) {
-            return EnrollmentResponse.fromEntity(existing.get());
-        }
+//         if (!course.isPublished()) {
+//             throw new RuntimeException("Course is not available for enrollment");
+//         }
 
-        Enrollment enrollment = new Enrollment();
-        enrollment.setStudent(student);
-        enrollment.setCourse(course);
-        enrollment.setStatus(Enrollment.Status.ENROLLED);
+//         Optional<Enrollment> existing = enrollmentRepository
+//                 .findByStudentIdAndCourseId(student.getId(), courseId);
+//         if (existing.isPresent()) {
+//             return EnrollmentResponse.fromEntity(existing.get());
+//         }
 
-        return EnrollmentResponse.fromEntity(enrollmentRepository.save(enrollment));
-    }
+//         Enrollment enrollment = new Enrollment();
+//         enrollment.setStudent(student);
+//         enrollment.setCourse(course);
+//         enrollment.setStatus(Enrollment.Status.ENROLLED);
+
+//         return EnrollmentResponse.fromEntity(enrollmentRepository.save(enrollment));
+//     }
 
     // View enrolled courses
-    public List<EnrollmentResponse> getEnrolledCourses() {
-        User student = getLoggedInStudent();
 
-        return enrollmentRepository.findByStudent(student)
-                .stream().map(EnrollmentResponse::fromEntity).collect(Collectors.toList());
-    }
+
+//     public List<EnrollmentResponse> getEnrolledCourses() {
+//         User student = getLoggedInStudent();
+
+//         return enrollmentRepository.findByStudent(student)
+//                 .stream().map(EnrollmentResponse::fromEntity).collect(Collectors.toList());
+//     }
 
     // Watch video lectures
     public String watchLesson(Long courseId, Long lessonId) {
@@ -488,7 +487,7 @@ public class CourseService implements ICourseService {
 
     // Private helper methods
 
-    private User getLoggedInStudent() {
+    private  User getLoggedInStudent() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Student not found"));

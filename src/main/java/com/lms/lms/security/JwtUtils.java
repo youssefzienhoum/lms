@@ -39,6 +39,7 @@ public class JwtUtils {
         return createToken(claims, username);
     }
 
+    
     @SuppressWarnings("deprecation")
     private String createToken(Map<String, Object> claims, String subject) {
 

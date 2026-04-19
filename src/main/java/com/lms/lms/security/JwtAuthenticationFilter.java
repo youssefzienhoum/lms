@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                // 🔥 THIS IS THE MOST IMPORTANT LINE
+             
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }

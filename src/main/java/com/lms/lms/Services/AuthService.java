@@ -2,6 +2,7 @@ package com.lms.lms.Services;
 
 import com.lms.lms.DTOS.LoginRequest;
 import com.lms.lms.DTOS.SignupRequest;
+import com.lms.lms.DTOS.authReponse;
 import com.lms.lms.Entity.User;
 import com.lms.lms.Repo.UserRepository;
 import com.lms.lms.security.JwtUtils;
@@ -24,7 +25,7 @@ public class AuthService {
     // =========================
     // REGISTER
     // =========================
-    public String register(SignupRequest request) {
+    public authReponse register(SignupRequest request) {
 
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new RuntimeException("User already exists");
@@ -39,15 +40,23 @@ public class AuthService {
         user.setActive(true);
 
         userRepository.save(user);
+        String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        authReponse authReponse = new authReponse(
+            user.getId(),
+            user.getFirstName(),
+            user.getLastName(),
+            "User registered successfully",
+            token
+        );
 
         // 🔥 FIX: include role in token
-        return jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        return authReponse;
     }
 
     // =========================
     // LOGIN
     // =========================
-    public String login(LoginRequest request) {
+    public authReponse login(LoginRequest request) {
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -61,6 +70,13 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // 🔥 FIX: include role in token
-        return jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        return new authReponse(
+            user.getId(),
+            user.getFirstName(),
+            user.getLastName(),
+            "User logged in successfully",
+            token
+        );
     }
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,19 +12,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.lms.lms.DTOS.AttemptResultResponse;
 import com.lms.lms.DTOS.CourseDTO;
 import com.lms.lms.DTOS.CourseRequestDto;
 import com.lms.lms.DTOS.CourseResponseDto;
-import com.lms.lms.DTOS.EnrollmentResponse;
-import com.lms.lms.DTOS.ExamResponse;
-import com.lms.lms.DTOS.ExamSubmissionRequest;
-import com.lms.lms.DTOS.QuizResponse;
-import com.lms.lms.DTOS.QuizSubmissionRequest;
-import com.lms.lms.DTOS.StudentProgressResponse;
+
 import com.lms.lms.Entity.User;
 import com.lms.lms.ServiceAbstraction.ICourseService;
 import com.lms.lms.Services.CourseService;
@@ -50,8 +44,7 @@ public class CourseController {
     }
 
     @PutMapping("/{courseId}")
-        @PreAuthorize("hasRole('INSTRUCTOR')")
-
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponseDto> updateCourse(
             @PathVariable Long courseId,
             @RequestBody CourseRequestDto dto,
@@ -60,8 +53,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/{courseId}")
-        @PreAuthorize("hasRole('INSTRUCTOR')")
-
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<Void> deleteCourse(
             @PathVariable Long courseId,
             @AuthenticationPrincipal User currentUser) {
@@ -72,7 +64,6 @@ public class CourseController {
 
     @GetMapping("/my-courses")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-
     public ResponseEntity<List<CourseResponseDto>> getMycourses(
             @AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(courseService.getInstructorCourses(currentUser.getId()));
@@ -104,18 +95,18 @@ public class CourseController {
     }
 
     // Enroll in a course
-    @PostMapping("/courses/{courseId}/enroll")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<EnrollmentResponse> enrollInCourse(@PathVariable Long courseId) {
-        return ResponseEntity.ok(((CourseService) courseService).enrollInCourse(courseId));
-    }
+    // @PostMapping("/courses/{courseId}/enroll")
+    // @PreAuthorize("hasRole('STUDENT')")
+    // public ResponseEntity<EnrollmentResponse> enrollInCourse(@PathVariable Long courseId) {
+    //     return ResponseEntity.ok(((CourseService) courseService).enrollInCourse(courseId));
+    // }
 
     // View enrolled courses
-    @GetMapping("/courses/enrolled")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<List<EnrollmentResponse>> getEnrolledCourses() {
-        return ResponseEntity.ok(((CourseService) courseService).getEnrolledCourses());
-    }
+    // @GetMapping("/courses/enrolled")
+    // @PreAuthorize("hasRole('STUDENT')")
+    // public ResponseEntity<List<EnrollmentResponse>> getEnrolledCourses() {
+    //     return ResponseEntity.ok(((CourseService) courseService).getEnrolledCourses());
+    // }
 
     // Watch video lectures
     @GetMapping("/courses/{courseId}/lessons/{lessonId}/watch")
@@ -127,54 +118,54 @@ public class CourseController {
     }
 
     // Take lesson quiz (fetch)
-    @GetMapping("/courses/{courseId}/lessons/{lessonId}/quiz")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<QuizResponse> getLessonQuiz(
-            @PathVariable Long courseId,
-            @PathVariable Long lessonId) {
-        return ResponseEntity.ok(((CourseService) courseService).getLessonQuiz(courseId, lessonId));
-    }
+    // @GetMapping("/courses/{courseId}/lessons/{lessonId}/quiz")
+    // @PreAuthorize("hasRole('STUDENT')")
+    // public ResponseEntity<QuizResponse> getLessonQuiz(
+    //         @PathVariable Long courseId,
+    //         @PathVariable Long lessonId) {
+    //     return ResponseEntity.ok(((CourseService) courseService).getLessonQuiz(courseId, lessonId));
+    // }
 
-    // Take lesson quiz (submit)
-    @PostMapping("/courses/{courseId}/quiz/submit")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<AttemptResultResponse> submitLessonQuiz(
-            @PathVariable Long courseId,
-            @RequestBody QuizSubmissionRequest request) {
-        return ResponseEntity.ok(((CourseService) courseService).submitLessonQuiz(courseId, request));
-    }
+    // // Take lesson quiz (submit)
+    // @PostMapping("/courses/{courseId}/quiz/submit")
+    // @PreAuthorize("hasRole('STUDENT')")
+    // public ResponseEntity<AttemptResultResponse> submitLessonQuiz(
+    //         @PathVariable Long courseId,
+    //         @RequestBody QuizSubmissionRequest request) {
+    //     return ResponseEntity.ok(((CourseService) courseService).submitLessonQuiz(courseId, request));
+    // }
 
-    // Take final course exam (fetch)
-    @GetMapping("/courses/{courseId}/exam")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<ExamResponse> getCourseExam(@PathVariable Long courseId) {
-        return ResponseEntity.ok(((CourseService) courseService).getCourseExam(courseId));
-    }
+    // // Take final course exam (fetch)
+    // @GetMapping("/courses/{courseId}/exam")
+    // @PreAuthorize("hasRole('STUDENT')")
+    // public ResponseEntity<ExamResponse> getCourseExam(@PathVariable Long courseId) {
+    //     return ResponseEntity.ok(((CourseService) courseService).getCourseExam(courseId));
+    // }
 
-    // Take final course exam (submit)
-    @PostMapping("/courses/{courseId}/exam/submit")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<AttemptResultResponse> submitCourseExam(
-            @PathVariable Long courseId,
-            @RequestBody ExamSubmissionRequest request) {
-        return ResponseEntity.ok(((CourseService) courseService).submitCourseExam(request));
-    }
+    // // Take final course exam (submit)
+    // @PostMapping("/courses/{courseId}/exam/submit")
+    // @PreAuthorize("hasRole('STUDENT')")
+    // public ResponseEntity<AttemptResultResponse> submitCourseExam(
+    //         @PathVariable Long courseId,
+    //         @RequestBody ExamSubmissionRequest request) {
+    //     return ResponseEntity.ok(((CourseService) courseService).submitCourseExam(request));
+    // }
 
-    // View grades and progress
-    @GetMapping("/courses/{courseId}/progress")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<StudentProgressResponse> getStudentProgress(
-            @PathVariable Long courseId) {
-        return ResponseEntity.ok(((CourseService) courseService).getStudentProgress(courseId));
-    }
+    // // View grades and progress
+    // @GetMapping("/courses/{courseId}/progress")
+    // @PreAuthorize("hasRole('STUDENT')")
+    // public ResponseEntity<StudentProgressResponse> getStudentProgress(
+    //         @PathVariable Long courseId) {
+    //     return ResponseEntity.ok(((CourseService) courseService).getStudentProgress(courseId));
+    // }
 
-    // Mark lesson as completed (helper method for the calculation of the course progress)
-    @PostMapping("/courses/{courseId}/lessons/{lessonId}/complete")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<Double> markLessonAsCompleted(
-            @PathVariable Long courseId,
-            @PathVariable Long lessonId) {
-        double progress = ((CourseService) courseService).markLessonAsCompleted(courseId, lessonId);
-        return ResponseEntity.ok(progress);
-    }
+    // // Mark lesson as completed (helper method for the calculation of the course progress)
+    // @PostMapping("/courses/{courseId}/lessons/{lessonId}/complete")
+    // @PreAuthorize("hasRole('STUDENT')")
+    // public ResponseEntity<Double> markLessonAsCompleted(
+    //         @PathVariable Long courseId,
+    //         @PathVariable Long lessonId) {
+    //     double progress = ((CourseService) courseService).markLessonAsCompleted(courseId, lessonId);
+    //     return ResponseEntity.ok(progress);
+    // }
 }
