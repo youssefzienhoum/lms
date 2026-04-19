@@ -45,6 +45,8 @@ public class AuthService {
             user.getId(),
             user.getFirstName(),
             user.getLastName(),
+            user.getEmail(),
+            user.getRole().name(),
             "User registered successfully",
             token
         );
@@ -75,6 +77,8 @@ public class AuthService {
             user.getId(),
             user.getFirstName(),
             user.getLastName(),
+            user.getEmail(),
+            user.getRole().name(),
             "User logged in successfully",
             token
         );
