@@ -79,14 +79,14 @@ public class CourseController {
     //=================
 
     // Browse all available courses
-    @GetMapping("/courses")
+    @GetMapping
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<List<CourseDTO>> browseAvailableCourses() {
         return ResponseEntity.ok(((CourseService) courseService).browseAvailableCourses());
     }
 
     // Search courses by name / category
-    @GetMapping("/courses/search")
+    @GetMapping("/search")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<List<CourseDTO>> searchCourses(
             @RequestParam(required = false) String keyword,
@@ -94,22 +94,9 @@ public class CourseController {
         return ResponseEntity.ok(((CourseService) courseService).searchCourses(keyword, categoryId));
     }
 
-    // Enroll in a course
-    // @PostMapping("/courses/{courseId}/enroll")
-    // @PreAuthorize("hasRole('STUDENT')")
-    // public ResponseEntity<EnrollmentResponse> enrollInCourse(@PathVariable Long courseId) {
-    //     return ResponseEntity.ok(((CourseService) courseService).enrollInCourse(courseId));
-    // }
-
-    // View enrolled courses
-    // @GetMapping("/courses/enrolled")
-    // @PreAuthorize("hasRole('STUDENT')")
-    // public ResponseEntity<List<EnrollmentResponse>> getEnrolledCourses() {
-    //     return ResponseEntity.ok(((CourseService) courseService).getEnrolledCourses());
-    // }
 
     // Watch video lectures
-    @GetMapping("/courses/{courseId}/lessons/{lessonId}/watch")
+    @GetMapping("/{courseId}/lessons/{lessonId}/watch")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<String> watchLesson(
             @PathVariable Long courseId,
@@ -117,55 +104,4 @@ public class CourseController {
         return ResponseEntity.ok(((CourseService) courseService).watchLesson(courseId, lessonId));
     }
 
-    // Take lesson quiz (fetch)
-    // @GetMapping("/courses/{courseId}/lessons/{lessonId}/quiz")
-    // @PreAuthorize("hasRole('STUDENT')")
-    // public ResponseEntity<QuizResponse> getLessonQuiz(
-    //         @PathVariable Long courseId,
-    //         @PathVariable Long lessonId) {
-    //     return ResponseEntity.ok(((CourseService) courseService).getLessonQuiz(courseId, lessonId));
-    // }
-
-    // // Take lesson quiz (submit)
-    // @PostMapping("/courses/{courseId}/quiz/submit")
-    // @PreAuthorize("hasRole('STUDENT')")
-    // public ResponseEntity<AttemptResultResponse> submitLessonQuiz(
-    //         @PathVariable Long courseId,
-    //         @RequestBody QuizSubmissionRequest request) {
-    //     return ResponseEntity.ok(((CourseService) courseService).submitLessonQuiz(courseId, request));
-    // }
-
-    // // Take final course exam (fetch)
-    // @GetMapping("/courses/{courseId}/exam")
-    // @PreAuthorize("hasRole('STUDENT')")
-    // public ResponseEntity<ExamResponse> getCourseExam(@PathVariable Long courseId) {
-    //     return ResponseEntity.ok(((CourseService) courseService).getCourseExam(courseId));
-    // }
-
-    // // Take final course exam (submit)
-    // @PostMapping("/courses/{courseId}/exam/submit")
-    // @PreAuthorize("hasRole('STUDENT')")
-    // public ResponseEntity<AttemptResultResponse> submitCourseExam(
-    //         @PathVariable Long courseId,
-    //         @RequestBody ExamSubmissionRequest request) {
-    //     return ResponseEntity.ok(((CourseService) courseService).submitCourseExam(request));
-    // }
-
-    // // View grades and progress
-    // @GetMapping("/courses/{courseId}/progress")
-    // @PreAuthorize("hasRole('STUDENT')")
-    // public ResponseEntity<StudentProgressResponse> getStudentProgress(
-    //         @PathVariable Long courseId) {
-    //     return ResponseEntity.ok(((CourseService) courseService).getStudentProgress(courseId));
-    // }
-
-    // // Mark lesson as completed (helper method for the calculation of the course progress)
-    // @PostMapping("/courses/{courseId}/lessons/{lessonId}/complete")
-    // @PreAuthorize("hasRole('STUDENT')")
-    // public ResponseEntity<Double> markLessonAsCompleted(
-    //         @PathVariable Long courseId,
-    //         @PathVariable Long lessonId) {
-    //     double progress = ((CourseService) courseService).markLessonAsCompleted(courseId, lessonId);
-    //     return ResponseEntity.ok(progress);
-    // }
 }

@@ -15,8 +15,7 @@ import com.lms.lms.DTOS.ExamSubmissionRequest;
 import com.lms.lms.DTOS.QuizResponse;
 import com.lms.lms.DTOS.QuizSubmissionRequest;
 import com.lms.lms.DTOS.StudentProgressResponse;
-import com.lms.lms.Services.CourseService;
-
+import com.lms.lms.Services.QuizAndExamService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 
 public class QuizAndExamController {
-        private final CourseService courseService;
+        private final QuizAndExamService quizAndExamService;
         
 
       // Take lesson quiz (fetch)
@@ -33,7 +32,7 @@ public class QuizAndExamController {
     public ResponseEntity<QuizResponse> getLessonQuiz(
             @PathVariable Long courseId,
             @PathVariable Long lessonId) {
-        return ResponseEntity.ok(((CourseService) courseService).getLessonQuiz(courseId, lessonId));
+        return ResponseEntity.ok(quizAndExamService.getLessonQuiz(courseId, lessonId));
     }
 
     // Take lesson quiz (submit)
@@ -42,14 +41,14 @@ public class QuizAndExamController {
     public ResponseEntity<AttemptResultResponse> submitLessonQuiz(
             @PathVariable Long courseId,
             @RequestBody QuizSubmissionRequest request) {
-        return ResponseEntity.ok(((CourseService) courseService).submitLessonQuiz(courseId, request));
+        return ResponseEntity.ok(quizAndExamService.submitLessonQuiz(courseId, request));
     }
 
     // Take final course exam (fetch)
     @GetMapping("/courses/{courseId}/exam")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ExamResponse> getCourseExam(@PathVariable Long courseId) {
-        return ResponseEntity.ok(((CourseService) courseService).getCourseExam(courseId));
+        return ResponseEntity.ok(quizAndExamService.getCourseExam(courseId));
     }
 
     // Take final course exam (submit)
@@ -58,7 +57,7 @@ public class QuizAndExamController {
     public ResponseEntity<AttemptResultResponse> submitCourseExam(
             @PathVariable Long courseId,
             @RequestBody ExamSubmissionRequest request) {
-        return ResponseEntity.ok(((CourseService) courseService).submitCourseExam(request));
+        return ResponseEntity.ok(quizAndExamService.submitCourseExam(request));
     }
 
     // View grades and progress
@@ -66,7 +65,7 @@ public class QuizAndExamController {
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<StudentProgressResponse> getStudentProgress(
             @PathVariable Long courseId) {
-        return ResponseEntity.ok(((CourseService) courseService).getStudentProgress(courseId));
+        return ResponseEntity.ok(quizAndExamService.getStudentProgress(courseId));
     }
 
     // Mark lesson as completed (helper method for the calculation of the course progress)
@@ -75,7 +74,7 @@ public class QuizAndExamController {
     public ResponseEntity<Double> markLessonAsCompleted(
             @PathVariable Long courseId,
             @PathVariable Long lessonId) {
-        double progress = ((CourseService) courseService).markLessonAsCompleted(courseId, lessonId);
+        double progress = quizAndExamService.markLessonAsCompleted(courseId, lessonId);
         return ResponseEntity.ok(progress);
     }
     

@@ -185,9 +185,7 @@ public class QuizAndExamService {
                         student.getId(), courseId, lessonId);
 
         if (existing.isPresent() && existing.get().isCompleted()) {
-            Double currentProgress = courseProgressRepository
-                    .getCourseProgressAverage(student.getId(), courseId);
-            return currentProgress != null ? currentProgress : 0.0;
+                return calculateCurrentProgress(student.getId(), courseId);
         }
 
         // Mark the lesson as completed
@@ -240,12 +238,11 @@ public class QuizAndExamService {
                 .findByStudentAndCourseIdOrderByAttemptNumberDesc(student, courseId)
                 .stream().map(ExamScoreResponse::fromEntity).collect(Collectors.toList());
 
-        Double overallProgress = courseProgressRepository
-                .getCourseProgressAverage(student.getId(), courseId);
+        double overallProgress = calculateCurrentProgress(student.getId(), courseId);
 
         return new StudentProgressResponse(
                 course.getTitle(),
-                overallProgress != null ? overallProgress : 0.0,
+                overallProgress,
                 averageQuizScore != null ? averageQuizScore : 0.0,
                 quizScores,
                 examAttempts
@@ -253,6 +250,20 @@ public class QuizAndExamService {
     }
 
     // Private helper methods
+
+    private double calculateCurrentProgress(Long studentId, Long courseId) {
+    long completedCount = courseProgressRepository
+            .findByEnrollmentStudentIdAndEnrollmentCourseId(studentId, courseId)
+            .stream()
+            .filter(CourseProgress::isCompleted)
+            .count();
+
+    int totalLessons = lessonRepository.findByCourseIdOrderByLessonOrder(courseId).size();
+
+    return totalLessons > 0
+            ? (completedCount * 100.0 / totalLessons)
+            : 0.0;
+}
 
     private  User getLoggedInStudent() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
