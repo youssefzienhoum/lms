@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -58,13 +60,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails =
                     userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtils.validateToken(token, username)) {
-
+            if (jwtUtils.validateToken(token, userDetails.getUsername())) {
+                // String roleFromToken = jwtUtils.extractRole(token);
+                // List<SimpleGrantedAuthority> authorities = List
+                //                                                 .of(new SimpleGrantedAuthority(roleFromToken));
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
-                                userDetails.getAuthorities()
+                                userDetails.getAuthorities()  // ← use this instead
+
                         );
 
                 authToken.setDetails(
@@ -75,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-
+        System.out.println("Current User Authorities: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         filterChain.doFilter(request, response);
     }
 }

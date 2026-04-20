@@ -11,6 +11,7 @@ import com.lms.lms.ServiceAbstraction.ICourseService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,7 +32,9 @@ public class CourseService implements ICourseService {
     private final CategoryRepository categoryRepository;
     @Override
     public CourseResponseDto createCourse(CourseRequestDto dto, Long instructorId) {
-         User instructor = userRepository.findById(instructorId)
+         User instructor = userRepository.findByRole(User.Role.INSTRUCTOR).stream()
+                .filter(user -> user.getId().equals(instructorId))
+                .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instructor not found"));
 
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -69,8 +72,13 @@ public class CourseService implements ICourseService {
        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Course not found"));
+        User instructor = userRepository.findByRole(User.Role.INSTRUCTOR).stream()
+                .filter(user -> user.getId().equals(instructorId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instructor not found"));
 
-        if (!course.getInstructor().getId().equals(instructorId)) {
+
+        if (!course.getInstructor().getId().equals(instructor)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't own this course");
         }
 
@@ -118,7 +126,10 @@ public class CourseService implements ICourseService {
     }
     @Override
     public List<CourseResponseDto> getInstructorCourses(Long instructorId) {
-        List<Course> courses = courseRepository.findByInstructor(instructorId);
+        List<Course> courses = userRepository.findByRole(User.Role.INSTRUCTOR).stream()
+                .filter(user -> user.getId().equals(instructorId))
+                .flatMap(user -> user.getCourses().stream())
+                .collect(Collectors.toList());
 
         return courses.stream().map(c -> {
             CourseResponseDto response = new CourseResponseDto();
@@ -156,5 +167,10 @@ public class CourseService implements ICourseService {
         response.setCategoryId(c.getCategory().getId());
         response.setCreatedAt(c.getCreatedAt());
         return response;
+    }
+    private User getLoggedInInstructor() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Instructor not found"));
     }
 }

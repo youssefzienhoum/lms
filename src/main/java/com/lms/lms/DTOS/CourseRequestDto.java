@@ -13,4 +13,5 @@ public class CourseRequestDto {
     private Integer totalLessons;
     private Integer totalDuration;
     private Long categoryId;
+    private Long instructor;
 }

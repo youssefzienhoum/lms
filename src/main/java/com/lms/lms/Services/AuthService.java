@@ -41,7 +41,7 @@ public class AuthService {
         userRepository.save(user);
 
         // 🔥 FIX: include role in token
-        return jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        return jwtUtils.generateToken(user.getEmail(), "ROLE_"+user.getRole().name());
     }
 
     // =========================
@@ -61,6 +61,6 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // 🔥 FIX: include role in token
-        return jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        return jwtUtils.generateToken(user.getEmail(), "ROLE_" + user.getRole().name());
     }
 }

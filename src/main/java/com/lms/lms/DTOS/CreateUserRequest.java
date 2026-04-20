@@ -2,9 +2,11 @@ package com.lms.lms.DTOS;
 
 import com.lms.lms.Entity.User;
 
-import io.smallrye.common.constraint.NotNull;
+import io.micrometer.common.lang.NonNull;
+// import io.smallrye.common.constraint.NotNull;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record CreateUserRequest (
      @Email   

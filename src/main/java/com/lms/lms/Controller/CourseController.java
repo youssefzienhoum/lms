@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,43 +30,43 @@ import lombok.RequiredArgsConstructor;
 public class CourseController {
 
     private final ICourseService courseService;
+    private final com.lms.lms.Repo.UserRepository userRepository;
 
-    @PostMapping("/Createcourses")
+    @PostMapping("/createcourses/{instructorId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponseDto> createCourse(
-            @RequestBody CourseRequestDto dto,
-            @AuthenticationPrincipal User currentUser) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(courseService.createCourse(dto, currentUser.getId()));
+        @RequestBody CourseRequestDto dto,
+        @PathVariable Long instructorId) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(courseService.createCourse(dto, instructorId));
     }
 
-    @PutMapping("/{courseId}")
-        @PreAuthorize("hasRole('INSTRUCTOR')")
-
+    @PutMapping("/updatecourses/{courseId}/{currentUser}")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponseDto> updateCourse(
             @PathVariable Long courseId,
             @RequestBody CourseRequestDto dto,
-            @AuthenticationPrincipal User currentUser) {
-        return ResponseEntity.ok(courseService.updateCourse(courseId, dto, currentUser.getId()));
+            @PathVariable Long currentUser) {
+        return ResponseEntity.ok(courseService.updateCourse(courseId, dto, currentUser));
     }
 
-    @DeleteMapping("/{courseId}")
-        @PreAuthorize("hasRole('INSTRUCTOR')")
+    @DeleteMapping("/{courseId}/{currentUser}")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
 
     public ResponseEntity<Void> deleteCourse(
             @PathVariable Long courseId,
-            @AuthenticationPrincipal User currentUser) {
-        courseService.deleteCourse(courseId, currentUser.getId());
+            @PathVariable Long currentUser) {
+        courseService.deleteCourse(courseId, currentUser);
         return ResponseEntity.noContent().build();
     }
 
 
-    @GetMapping("/my-courses")
+    @GetMapping("/my-courses/{currentUser}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
 
     public ResponseEntity<List<CourseResponseDto>> getMycourses(
-            @AuthenticationPrincipal User currentUser) {
-        return ResponseEntity.ok(courseService.getInstructorCourses(currentUser.getId()));
+            @PathVariable Long currentUser) {
+        return ResponseEntity.ok(courseService.getInstructorCourses(currentUser));
     }
 
     @GetMapping("/{courseId}")
