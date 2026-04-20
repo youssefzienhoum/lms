@@ -17,61 +17,46 @@ public class AdminUserController {
 
     private final AdminUserService adminUserService;
 
-    // =========================
-    // GET ALL USERS
-    // =========================
     @GetMapping
    
     public List<UserRespones> getAllUsers() {
         return adminUserService.getAllUsers();
     }
 
-    // =========================
-    // GET STUDENTS
-    // =========================
+    
     @GetMapping("/students")
     public List<UserRespones> getStudents() {
         return adminUserService.getStudents();
     }
 
-    // =========================
-    // GET INSTRUCTORS
-    // =========================
+   
     @GetMapping("/instructors")
    
     public List<UserRespones> getInstructors() {
         return adminUserService.getInstructors();
     }
 
-    // =========================
-    // BLOCK USER
-    // =========================
+    
     @PutMapping("/block/{id}")
     public void block(@PathVariable Long id) {
         adminUserService.blockUser(id);
     }
 
-    // =========================
-    // UNBLOCK USER
-    // =========================
+ 
     @PutMapping("/unblock/{id}")
    
     public void unblock(@PathVariable Long id) {
         adminUserService.unblockUser(id);
     }
 
-    // =========================
-    // DELETE USER
-    // =========================
-    @DeleteMapping("/{id}")
+    
+    @DeleteMapping("/delete/{id}")
    
     public void delete(@PathVariable Long id) {
         adminUserService.deleteUser(id);
     }
 
-    // =========================
-    // CHANGE ROLE
-    // =========================
+   
   @PutMapping("/role/{id}")
 
 public void changeRole(@PathVariable Long id,

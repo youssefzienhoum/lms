@@ -44,43 +44,74 @@ public class CourseService implements ICourseService {
     private final CourseProgressRepository courseProgressRepository;
 
     @Override
-    public CourseResponseDto createCourse(CourseRequestDto dto, Long instructorId) {
-//<<<<<<< HEAD
-         User instructor = userRepository.findByRole(User.Role.INSTRUCTOR).stream()
-                .filter(user -> user.getId().equals(instructorId))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instructor not found"));
+    public CourseResponseDto createCourse(CourseRequestDto dto) {
 
-        Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+    User instructor = getLoggedInInstructor(); 
+    Category category = categoryRepository.findById(dto.getCategoryId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
 
-        Course course = new Course();
-        course.setTitle(dto.getTitle());
-        course.setDescription(dto.getDescription());
-        course.setThumbnailUrl(dto.getThumbnailUrl());
-        course.setFree(dto.getFree());
-        course.setTotalLessons(dto.getTotalLessons());
-        course.setTotalDuration(dto.getTotalDuration());
-        course.setInstructor(instructor);
-        course.setCategory(category);
+    Course course = new Course();
+    course.setTitle(dto.getTitle());
+    course.setDescription(dto.getDescription());
+    course.setThumbnailUrl(dto.getThumbnailUrl());
+    course.setFree(dto.getFree());
+    course.setTotalLessons(dto.getTotalLessons());
+    course.setTotalDuration(dto.getTotalDuration());
+    course.setInstructor(instructor);
+    course.setCategory(category);
 
-        Course saved = courseRepository.save(course);
+    Course saved = courseRepository.save(course);
 
-        // ── inline mapping ──
-        CourseResponseDto response = new CourseResponseDto();
-        response.setId(saved.getId());
-        response.setTitle(saved.getTitle());
-        response.setDescription(saved.getDescription());
-        response.setThumbnailUrl(saved.getThumbnailUrl());
-        // response.setPublished(saved.getPublished());
-        response.setTotalLessons(saved.getTotalLessons());
-        response.setTotalDuration(saved.getTotalDuration());
-        response.setInstructorId(saved.getInstructor().getId());
-        response.setCategoryId(saved.getCategory().getId());
-        response.setCreatedAt(saved.getCreatedAt());
-        return response;
+    CourseResponseDto response = new CourseResponseDto();
+    response.setId(saved.getId());
+    response.setTitle(saved.getTitle());
+    response.setDescription(saved.getDescription());
+    response.setThumbnailUrl(saved.getThumbnailUrl());
+    response.setTotalLessons(saved.getTotalLessons());
+    response.setTotalDuration(saved.getTotalDuration());
+    response.setInstructorId(saved.getInstructor().getId());
+    response.setCategoryId(saved.getCategory().getId());
+    response.setCreatedAt(saved.getCreatedAt());
 
-    }
+    return response;
+}
+//     public CourseResponseDto createCourse(CourseRequestDto dto, Long instructorId) {
+
+//          User instructor = userRepository.findByRole(User.Role.INSTRUCTOR).stream()
+//                 .filter(user -> user.getId().equals(instructorId))
+//                 .findFirst()
+//                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instructor not found"));
+
+//         Category category = categoryRepository.findById(dto.getCategoryId())
+//                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+
+//         Course course = new Course();
+//         course.setTitle(dto.getTitle());
+//         course.setDescription(dto.getDescription());
+//         course.setThumbnailUrl(dto.getThumbnailUrl());
+//         course.setFree(dto.getFree());
+//         course.setTotalLessons(dto.getTotalLessons());
+//         course.setTotalDuration(dto.getTotalDuration());
+//         course.setInstructor(instructor);
+//         course.setCategory(category);
+
+//         Course saved = courseRepository.save(course);
+
+//         // ── inline mapping ──
+//         CourseResponseDto response = new CourseResponseDto();
+//         response.setId(saved.getId());
+//         response.setTitle(saved.getTitle());
+//         response.setDescription(saved.getDescription());
+//         response.setThumbnailUrl(saved.getThumbnailUrl());
+//         // response.setPublished(saved.getPublished());
+//         response.setTotalLessons(saved.getTotalLessons());
+//         response.setTotalDuration(saved.getTotalDuration());
+//         response.setInstructorId(saved.getInstructor().getId());
+//         response.setCategoryId(saved.getCategory().getId());
+//         response.setCreatedAt(saved.getCreatedAt());
+//         return response;
+
+//     }
     @Override
     public CourseResponseDto updateCourse(Long courseId, CourseRequestDto dto, Long instructorId) {
         Course course = courseRepository.findById(courseId)
@@ -185,18 +216,32 @@ public class CourseService implements ICourseService {
         response.setCreatedAt(c.getCreatedAt());
         return response;
     }
-//<<<<<<< HEAD
+
+//     private User getLoggedInInstructor() {
+//         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//         return userRepository.findByEmail(email)
+//                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
+//     }
     private User getLoggedInInstructor() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Instructor not found"));
+    var auth = SecurityContextHolder.getContext().getAuthentication();
+
+    if (auth == null || !auth.isAuthenticated()) {
+        throw new RuntimeException("User not authenticated");
     }
 
-//=======
+    
+    boolean isInstructor = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_INSTRUCTOR"));
 
-    //=================
-    // Student related
-    //=================
+    if (!isInstructor) {
+        throw new RuntimeException("Access denied: Not an instructor");
+    }
+
+    String email = auth.getName();
+
+    return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Instructor not found"));
+}
 
     // Browse all available courses
     public List<CourseDTO> browseAvailableCourses() {
@@ -271,8 +316,6 @@ public class CourseService implements ICourseService {
                 examAttempts
         );
     }
-
-    // Private helper methods
 
     private  User getLoggedInStudent() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

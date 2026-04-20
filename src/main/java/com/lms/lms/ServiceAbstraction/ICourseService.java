@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ICourseService {
     
-    CourseResponseDto createCourse(CourseRequestDto dto, Long instructorId);
+    CourseResponseDto createCourse(CourseRequestDto dto);
     CourseResponseDto updateCourse(Long courseId, CourseRequestDto dto, Long instructorId);
     void deleteCourse(Long courseId, Long instructorId);
     List<CourseResponseDto> getInstructorCourses(Long instructorId);

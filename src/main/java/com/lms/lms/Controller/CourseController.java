@@ -5,9 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,8 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lms.lms.DTOS.CourseDTO;
 import com.lms.lms.DTOS.CourseRequestDto;
 import com.lms.lms.DTOS.CourseResponseDto;
+import com.lms.lms.Repo.UserRepository;
 
-import com.lms.lms.Entity.User;
+
 import com.lms.lms.ServiceAbstraction.ICourseService;
 import com.lms.lms.Services.CourseService;
 
@@ -35,15 +34,14 @@ import lombok.RequiredArgsConstructor;
 public class CourseController {
 
     private final ICourseService courseService;
-    private final com.lms.lms.Repo.UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @PostMapping("/createcourses/{instructorId}")
+    @PostMapping("/createcourses")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponseDto> createCourse(
-        @RequestBody CourseRequestDto dto,
-        @PathVariable Long instructorId) {
+        @RequestBody CourseRequestDto dto) {
     return ResponseEntity.status(HttpStatus.CREATED)
-            .body(courseService.createCourse(dto, instructorId));
+            .body(courseService.createCourse(dto));
     }
 
     @PutMapping("/updatecourses/{courseId}/{currentUser}")
