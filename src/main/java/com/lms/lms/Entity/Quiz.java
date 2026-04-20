@@ -1,12 +1,13 @@
 package com.lms.lms.Entity;
 import jakarta.persistence.*;
-
+import lombok.Data;
 
 import java.math.BigDecimal;
 
 import java.util.List;
 
 @Entity
+@Data
 @Table(name = "quizzes")
 public class Quiz {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

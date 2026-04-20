@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lms.lms.DTOS.LoginRequest;
 import com.lms.lms.DTOS.SignupRequest;
+import com.lms.lms.DTOS.authReponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +24,16 @@ public class Authcontroller {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<String> register(@RequestBody @Valid SignupRequest request) {
-        String token = authService.register(request);   
-        return ResponseEntity.ok(token);
+    public ResponseEntity<authReponse> register(@RequestBody @Valid SignupRequest request) {
+        // authReponse authReponse = authService.register(request);   
+        return ResponseEntity.ok(authService.register(request));
     }
     
     @PostMapping("/login")
     
-    public ResponseEntity<String> login(@RequestBody @Valid LoginRequest request) {
-        String token = authService.login(request);
-        return ResponseEntity.ok(token);
+    public ResponseEntity<authReponse> login(@RequestBody @Valid LoginRequest request) {
+        // authReponse authReponse = authService.login(request);
+        return ResponseEntity.ok( authService.login(request));
     }
 }
     

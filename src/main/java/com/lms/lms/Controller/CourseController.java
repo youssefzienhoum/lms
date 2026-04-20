@@ -15,14 +15,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lms.lms.DTOS.CourseDTO;
 import com.lms.lms.DTOS.CourseRequestDto;
 import com.lms.lms.DTOS.CourseResponseDto;
+
 import com.lms.lms.Entity.User;
 import com.lms.lms.ServiceAbstraction.ICourseService;
+import com.lms.lms.Services.CourseService;
 
 import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/courses")
 
@@ -63,7 +68,6 @@ public class CourseController {
 
     @GetMapping("/my-courses/{currentUser}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-
     public ResponseEntity<List<CourseResponseDto>> getMycourses(
             @PathVariable Long currentUser) {
         return ResponseEntity.ok(courseService.getInstructorCourses(currentUser));
@@ -73,5 +77,35 @@ public class CourseController {
     public ResponseEntity<CourseResponseDto> getCourseById(@PathVariable Long courseId) {
         return ResponseEntity.ok(courseService.getCourseById(courseId));
     }
-    
+
+    //=================
+    // Student related
+    //=================
+
+    // Browse all available courses
+    @GetMapping
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<List<CourseDTO>> browseAvailableCourses() {
+        return ResponseEntity.ok(((CourseService) courseService).browseAvailableCourses());
+    }
+
+    // Search courses by name / category
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<List<CourseDTO>> searchCourses(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long categoryId) {
+        return ResponseEntity.ok(((CourseService) courseService).searchCourses(keyword, categoryId));
+    }
+
+
+    // Watch video lectures
+    @GetMapping("/{courseId}/lessons/{lessonId}/watch")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<String> watchLesson(
+            @PathVariable Long courseId,
+            @PathVariable Long lessonId) {
+        return ResponseEntity.ok(((CourseService) courseService).watchLesson(courseId, lessonId));
+    }
+
 }

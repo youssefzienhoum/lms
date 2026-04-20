@@ -1,10 +1,12 @@
 package com.lms.lms.Entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 
 @Entity
+@Data
 @Table(name = "questions")
 
 public class Question {
