@@ -15,20 +15,22 @@ public class AdminUserService {
     private final UserRepository userRepository;
 
     
-    // 1. GET USERS
-    public List<UserRespones> getAllUsers() {
-        return userRepository.findAll().stream()
-        .map(
-            user -> new UserRespones(
-                user.getId(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getRole().name(),
-                user.isActive()
-            )
-        ).toList();
-    }
+    
+   public List<UserRespones> getAllUsers() {
+
+    return userRepository.findAll()
+            .stream()
+            .filter(user -> user.getRole() != User.Role.ADMIN)
+            .map(user -> new UserRespones(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getRole().name(),
+                    user.isActive()
+            ))
+            .toList();
+}
 
     public List<UserRespones> getStudents() {
         return userRepository.findByRole(User.Role.STUDENT).stream()
@@ -58,9 +60,7 @@ public class AdminUserService {
                 ).toList();
     }
 
-    // =========================
-    // 2. BLOCK / UNBLOCK USER
-    // =========================
+  
     public void blockUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -77,7 +77,7 @@ public class AdminUserService {
         userRepository.save(user);
     }
 
-    // 3. DELETE USER
+  
     
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
@@ -87,7 +87,7 @@ public class AdminUserService {
     }
 
 
-    // 4. CHANGE ROLE
+
  
     public void changeRole(Long userId, User.Role role) {
         User user = userRepository.findById(userId)
