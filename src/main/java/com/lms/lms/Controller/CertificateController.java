@@ -22,14 +22,14 @@ public class CertificateController {
 
     private final CertificateService certificateService;
 
-    @PostMapping("/generate/{courseId}")
-    @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<CertificateResponse> generateCertificate(
-            @RequestBody Long courseId,
-            @RequestBody CertificateRequestDto requestDto) {
-        return ResponseEntity.ok(certificateService.generateCertificateForCourseCompletion(requestDto,  courseId));
-    }
-
+    // @PostMapping("/generate/{courseId}")
+    // @PreAuthorize("hasRole('INSTRUCTOR')")
+    // public ResponseEntity<CertificateResponse> generateCertificate(
+    //         @RequestBody Long courseId,
+    //         @RequestBody CertificateRequestDto requestDto) {
+    //     return ResponseEntity.ok(certificateService.generateCertificateForCourseCompletion(requestDto,  courseId));
+    // }
+    
     // View certificates
     @GetMapping
     @PreAuthorize("hasRole('STUDENT')")

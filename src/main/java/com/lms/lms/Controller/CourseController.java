@@ -41,18 +41,18 @@ public class CourseController {
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponseDto> createCourse(
         @RequestBody CourseRequestDto dto,
-        @PathVariable Long instructorId) {
+        ) {
     return ResponseEntity.status(HttpStatus.CREATED)
-            .body(courseService.createCourse(dto, instructorId));
+            .body(courseService.createCourse(dto));
     }
 
     @PutMapping("/updatecourses/{courseId}/{currentUser}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponseDto> updateCourse(
             @PathVariable Long courseId,
-            @RequestBody CourseRequestDto dto,
-            @PathVariable Long currentUser) {
-        return ResponseEntity.ok(courseService.updateCourse(courseId, dto, currentUser));
+            @RequestBody CourseRequestDto dto
+            ) {
+        return ResponseEntity.ok(courseService.updateCourse(courseId, dto));
     }
 
     @DeleteMapping("/{courseId}/{currentUser}")
