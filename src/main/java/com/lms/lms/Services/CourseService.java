@@ -44,12 +44,9 @@ public class CourseService implements ICourseService {
     private final CourseProgressRepository courseProgressRepository;
 
     @Override
-    public CourseResponseDto createCourse(CourseRequestDto dto, Long instructorId) {
+    public CourseResponseDto createCourse(CourseRequestDto dto) {
 //<<<<<<< HEAD
-         User instructor = userRepository.findByRole(User.Role.INSTRUCTOR).stream()
-                .filter(user -> user.getId().equals(instructorId))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instructor not found"));
+         User instructor = getLoggedInInstructor();
 
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
@@ -82,18 +79,15 @@ public class CourseService implements ICourseService {
 
     }
     @Override
-    public CourseResponseDto updateCourse(Long courseId, CourseRequestDto dto, Long instructorId) {
+    public CourseResponseDto updateCourse(Long courseId, CourseRequestDto dto) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Course not found"));
-        User instructor = userRepository.findByRole(User.Role.INSTRUCTOR).stream()
-                .filter(user -> user.getId().equals(instructorId))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instructor not found"));
+        User instructor = getLoggedInInstructor();
 
 
         if (!course.getInstructor().getId().equals(instructor)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't own this course");
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't own this course");
         }
 
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -106,6 +100,7 @@ public class CourseService implements ICourseService {
         course.setFree(dto.getFree());
         course.setTotalLessons(dto.getTotalLessons());
         course.setTotalDuration(dto.getTotalDuration());
+        course.setInstructor(instructor);
         course.setCategory(category);
 
         Course saved = courseRepository.save(course);
@@ -186,12 +181,31 @@ public class CourseService implements ICourseService {
         return response;
     }
 //<<<<<<< HEAD
-    private User getLoggedInInstructor() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Instructor not found"));
+//     private User getLoggedInInstructor() {
+//         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//         return userRepository.findByEmail(email)
+//                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
+//     }
+private User getLoggedInInstructor() {
+    var auth = SecurityContextHolder.getContext().getAuthentication();
+
+    if (auth == null || !auth.isAuthenticated()) {
+        throw new RuntimeException("User not authenticated");
     }
 
+    
+    boolean isInstructor = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_INSTRUCTOR"));
+
+    if (!isInstructor) {
+        throw new RuntimeException("Access denied: Not an instructor");
+    }
+
+    String email = auth.getName();
+
+    return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Instructor not found"));
+}
 //=======
 
     //=================
@@ -279,5 +293,5 @@ public class CourseService implements ICourseService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
     }
-
+    
 }

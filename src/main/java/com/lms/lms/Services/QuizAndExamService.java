@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.lms.lms.DTOS.AnswerSubmission;
 import com.lms.lms.DTOS.AttemptResultResponse;
+import com.lms.lms.DTOS.ExamRequestDto;
 import com.lms.lms.DTOS.ExamResponse;
 import com.lms.lms.DTOS.ExamScoreResponse;
 import com.lms.lms.DTOS.ExamSubmissionRequest;
+import com.lms.lms.DTOS.QuizRequestDto;
 import com.lms.lms.DTOS.QuizResponse;
 import com.lms.lms.DTOS.QuizScoreResponse;
 import com.lms.lms.DTOS.QuizSubmissionRequest;
@@ -26,6 +28,7 @@ import com.lms.lms.Entity.CourseExam;
 import com.lms.lms.Entity.CourseProgress;
 import com.lms.lms.Entity.Enrollment;
 import com.lms.lms.Entity.ExamAttempt;
+import com.lms.lms.Entity.Lesson;
 import com.lms.lms.Entity.Quiz;
 import com.lms.lms.Entity.QuizAttempt;
 import com.lms.lms.Entity.User;
@@ -47,7 +50,36 @@ public class QuizAndExamService {
         private final AnswerRepository answerRepository;
         private final UserRepository userRepository;
 
-    
+    public QuizResponse CreeateQuiz(QuizRequestDto dto) {
+        User instructor = getLoggedInInstructor();
+
+        Course course = courseRepository.findById(dto.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (!course.getInstructor().getId().equals(instructor.getId())) {
+            throw new RuntimeException("You don't own this course");
+        }
+
+        Lesson lesson = lessonRepository.findById(dto.getLessonId())
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+
+        if (!lesson.getCourse().getId().equals(course.getId())) {
+            throw new RuntimeException("This lesson does not belong to the specified course");
+        }
+
+        Quiz quiz = new Quiz();
+        quiz.setTitle(dto.getTitle());
+        quiz.setTimeLimit(dto.getTimeLimit());
+        quiz.setTotalQuestions(dto.getTotalQuestions());
+        quiz.setPassingScore(dto.getPassingScore());
+        quiz.setPublished(dto.getPublished());
+        quiz.setLesson(lesson);
+        quiz.getLesson().getCourse().setInstructor(instructor);
+
+        Quiz saved = quizRepository.save(quiz);
+        return QuizResponse.fromEntity(saved);
+
+    }
         // Take lesson quiz (fetch)
     public QuizResponse getLessonQuiz(Long courseId, Long lessonId) {
         User student = getLoggedInStudent();
@@ -71,6 +103,18 @@ public class QuizAndExamService {
         return QuizResponse.fromEntity(quiz);
     }
 
+    public  void DeleteQuiz(Long quizId) {
+        User instructor = getLoggedInInstructor();
+
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+        if (!quiz.getLesson().getCourse().getInstructor().getId().equals(instructor.getId())) {
+            throw new RuntimeException("You don't own this quiz");
+        }
+
+        quizRepository.delete(quiz);
+    }
     // Take lesson quiz (submit)
     public AttemptResultResponse submitLessonQuiz(Long courseId, QuizSubmissionRequest request) {
         User student = getLoggedInStudent();
@@ -99,6 +143,34 @@ public class QuizAndExamService {
     }
 
     // Take final exam (fetch)
+    public ExamResponse CreateExam(ExamRequestDto dto) {
+        User instructor = getLoggedInInstructor();
+        Course course = courseRepository.findById(dto.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        if (!course.getInstructor().getId().equals(instructor.getId())) {
+                throw new RuntimeException("You don't own this course");
+        }
+        CourseExam exam = new CourseExam();
+        exam.setTitle(dto.getTitle());
+        exam.setTimeLimit(dto.getTimeLimit());
+        exam.setTotalQuestions(dto.getTotalQuestions());
+        exam.setPassingScore(dto.getPassingScore());
+        exam.setCourse(course);
+        exam.getCourse().setInstructor(instructor);
+        CourseExam saved = courseExamRepository.save(exam);
+        return ExamResponse.fromEntity(saved);
+    }
+
+    public void deleteExam(Long examId) {
+        User instructor = getLoggedInInstructor();
+        CourseExam exam = courseExamRepository.findById(examId)
+                .orElseThrow(() -> new RuntimeException("Exam not found"));
+        if (!exam.getCourse().getInstructor().getId().equals(instructor.getId())) {
+                throw new RuntimeException("You don't own this course");
+        }
+        courseExamRepository.delete(exam);
+    }
+
     public ExamResponse getCourseExam(Long courseId) {
         User student = getLoggedInStudent();
 
@@ -119,6 +191,8 @@ public class QuizAndExamService {
     }
 
     // Take final exam  (submit)
+
+
     public AttemptResultResponse submitCourseExam(ExamSubmissionRequest request) {
         User student = getLoggedInStudent();
 
@@ -247,7 +321,7 @@ public class QuizAndExamService {
                 quizScores,
                 examAttempts
         );
-    }
+}
 
     // Private helper methods
 
@@ -288,5 +362,25 @@ public class QuizAndExamService {
         return BigDecimal.valueOf(correctAnswers * 100.0 / totalQuestions)
                 .setScale(2, RoundingMode.HALF_UP);
     }
+       private User getLoggedInInstructor() {
+    var auth = SecurityContextHolder.getContext().getAuthentication();
+
+    if (auth == null || !auth.isAuthenticated()) {
+        throw new RuntimeException("User not authenticated");
+    }
+
+    
+    boolean isInstructor = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_INSTRUCTOR"));
+
+    if (!isInstructor) {
+        throw new RuntimeException("Access denied: Not an instructor");
+    }
+
+    String email = auth.getName();
+
+    return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Instructor not found"));
+}
 }
 

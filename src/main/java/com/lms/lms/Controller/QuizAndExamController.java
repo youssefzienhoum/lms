@@ -2,6 +2,7 @@ package com.lms.lms.Controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lms.lms.DTOS.AttemptResultResponse;
+import com.lms.lms.DTOS.ExamRequestDto;
 import com.lms.lms.DTOS.ExamResponse;
 import com.lms.lms.DTOS.ExamSubmissionRequest;
+import com.lms.lms.DTOS.QuizRequestDto;
 import com.lms.lms.DTOS.QuizResponse;
 import com.lms.lms.DTOS.QuizSubmissionRequest;
 import com.lms.lms.DTOS.StudentProgressResponse;
@@ -25,6 +28,21 @@ import lombok.RequiredArgsConstructor;
 public class QuizAndExamController {
         private final QuizAndExamService quizAndExamService;
         
+    
+    
+    @PostMapping("/create-quiz")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<QuizResponse> createQuiz(
+        @RequestBody QuizRequestDto dto) {
+        return ResponseEntity.ok(quizAndExamService.CreeateQuiz(dto));
+    }
+
+    @DeleteMapping("/delete-quiz/{quizId}")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<Void> deleteQuiz(@PathVariable Long quizId) {
+        quizAndExamService.DeleteQuiz(quizId);
+        return ResponseEntity.noContent().build();
+    }
 
       // Take lesson quiz (fetch)
     @GetMapping("/courses/{courseId}/lessons/{lessonId}/quiz")
@@ -44,11 +62,24 @@ public class QuizAndExamController {
         return ResponseEntity.ok(quizAndExamService.submitLessonQuiz(courseId, request));
     }
 
+    @PostMapping("/create-exam")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<ExamResponse> CreateExam(
+        @RequestBody  ExamRequestDto dto) {
+        return ResponseEntity.ok(quizAndExamService.CreateExam(dto));
+    }
     // Take final course exam (fetch)
     @GetMapping("/courses/{courseId}/exam")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ExamResponse> getCourseExam(@PathVariable Long courseId) {
         return ResponseEntity.ok(quizAndExamService.getCourseExam(courseId));
+    }
+
+    @DeleteMapping("/delete-exam/{examId}")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<Void> deleteExam(@PathVariable Long examId) {
+        quizAndExamService.deleteExam(examId);
+        return ResponseEntity.noContent().build();
     }
 
     // Take final course exam (submit)
