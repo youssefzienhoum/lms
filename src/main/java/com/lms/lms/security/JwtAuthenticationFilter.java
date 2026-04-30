@@ -33,9 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // =========================
-        // NO TOKEN
-        // =========================
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -51,9 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // =========================
-        // AUTH SET ONLY ONCE
-        // =========================
+      
         if (username != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -68,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
-                                userDetails.getAuthorities()  // ← use this instead
+                                userDetails.getAuthorities()  
 
                         );
 
