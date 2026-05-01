@@ -36,6 +36,22 @@ public class CategoryController {
                 .status(201) // CREATED
                 .body(category);
     }
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Category> updateCategory(
+            @PathVariable Long id,
+            @Valid @RequestBody CategoryRequest request) {
+
+        Category updatedCategory = categoryService.update(id, request);
+
+        return ResponseEntity.ok(updatedCategory);
+    }
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        categoryService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 
    
     @GetMapping("/search")
