@@ -25,7 +25,7 @@ public class DataInitializer {
             if (!exists) {
                 User admin = new User();
                 admin.setEmail("admin@test.com");
-                admin.setPassword(passwordEncoder.encode("123456"));
+                admin.setPassword(passwordEncoder.encode("E177zbT0"));
                 admin.setFirstName("System");
                 admin.setLastName("Admin");
                 admin.setRole(User.Role.ADMIN);
@@ -33,7 +33,7 @@ public class DataInitializer {
 
                 userRepository.save(admin);
 
-                System.out.println("🔥 Admin Created Successfully");
+                System.out.println(" Admin Created Successfully");
             }
         };
     }

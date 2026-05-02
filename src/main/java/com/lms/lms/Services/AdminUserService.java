@@ -1,9 +1,12 @@
 package com.lms.lms.Services;
 
+import com.lms.lms.DTOS.CreateUserRequest;
 import com.lms.lms.DTOS.UserRespones;
 import com.lms.lms.Entity.User;
 import com.lms.lms.Repo.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +16,7 @@ import java.util.List;
 public class AdminUserService {
 
     private final UserRepository userRepository;
-
+    private final PasswordEncoder PasswordEncoder;  
     
     
    public List<UserRespones> getAllUsers() {
@@ -78,6 +81,7 @@ public class AdminUserService {
     }
 
   
+   
     
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
@@ -87,8 +91,24 @@ public class AdminUserService {
     }
 
 
+public void  createUser(CreateUserRequest request) {
 
- 
+    if (userRepository.findByEmail(request.email()).isPresent()) {
+        throw new RuntimeException("User already exists");
+    }
+
+    User user = new User();
+    user.setEmail(request.email());
+    user.setPassword(PasswordEncoder.encode(request.password()));
+    user.setFirstName(request.firstname());
+    user.setLastName(request.lastname());
+    user.setRole(request.role());
+    user.setActive(true);
+
+    userRepository.save(user);
+
+  
+}
     public void changeRole(Long userId, User.Role role) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -97,9 +117,6 @@ public class AdminUserService {
         userRepository.save(user);
     }
 
-  
-    // 5. APPROVE INSTRUCTOR
-    // (بسيطة لأنك ما عندكش status فهنستخدم role)
 
     public void approveInstructor(Long userId) {
         User user = userRepository.findById(userId)
@@ -113,9 +130,7 @@ public class AdminUserService {
         }
     }
 
-    // =========================
-    // 6. ANALYTICS
-    // =========================
+    
     public Long totalUsers() {
         return userRepository.count();
     }

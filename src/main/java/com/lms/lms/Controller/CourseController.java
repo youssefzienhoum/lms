@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lms.lms.DTOS.CourseDTO;
+import com.lms.lms.DTOS.CourseDetailsResponse;
 import com.lms.lms.DTOS.CourseRequestDto;
 import com.lms.lms.DTOS.CourseResponseDto;
 import com.lms.lms.Repo.UserRepository;
@@ -104,6 +105,13 @@ public class CourseController {
             @PathVariable Long courseId,
             @PathVariable Long lessonId) {
         return ResponseEntity.ok(((CourseService) courseService).watchLesson(courseId, lessonId));
+    }
+
+    // get full course details
+    @GetMapping("/{courseId}/details")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<CourseDetailsResponse> getCourseDetails(@PathVariable Long courseId) {
+        return ResponseEntity.ok(((CourseService) courseService).getCourseDetails(courseId));
     }
 
 }

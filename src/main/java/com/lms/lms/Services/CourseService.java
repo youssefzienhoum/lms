@@ -3,6 +3,7 @@ package com.lms.lms.Services;
 import com.lms.lms.DTOS.CourseDTO;
 import com.lms.lms.DTOS.CourseRequestDto;
 import com.lms.lms.DTOS.CourseResponseDto;
+import com.lms.lms.DTOS.CourseDetailsResponse;
 import com.lms.lms.DTOS.ExamScoreResponse;
 import com.lms.lms.DTOS.LessonResponseDto;
 import com.lms.lms.DTOS.QuizScoreResponse;
@@ -332,6 +333,14 @@ public class CourseService implements ICourseService {
                 examAttempts
         );
     }
+
+    // get full course details
+    public CourseDetailsResponse getCourseDetails(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        return CourseDetailsResponse.fromEntity(course);
+        }
 
     private  User getLoggedInStudent() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

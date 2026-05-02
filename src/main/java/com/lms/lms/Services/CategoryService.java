@@ -23,6 +23,7 @@ public class CategoryService {
 
     public Category create(CategoryRequest request) {
 
+
         if (categoryRepository.findByName(request.name()) .isPresent()) {
             throw new RuntimeException("Category already exists");
         }
@@ -38,7 +39,20 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    
+ public Category update(Long id, CategoryRequest request) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        category.setName(request.name());
+        category.setDescription(request.description());
+        category.setIcon(request.icon());
+        return categoryRepository.save(category);
+    }
+    public void delete(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new RuntimeException("Category not found");
+        }
+        categoryRepository.deleteById(id);
+    }
     public List<Category> searchCategories(String keyword) {
         return categoryRepository.findByNameContainingIgnoreCase(keyword);
     }

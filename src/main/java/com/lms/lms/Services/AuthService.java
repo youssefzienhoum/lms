@@ -22,9 +22,7 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
 
-    // =========================
-    // REGISTER
-    // =========================
+   
     public authReponse register(SignupRequest request) {
 
         if (userRepository.findByEmail(request.email()).isPresent()) {
@@ -36,7 +34,7 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setFirstName(request.firstname());
         user.setLastName(request.lastname());
-        user.setRole(request.role());
+        user.setRole(User.Role.STUDENT); // Default role
         user.setActive(true);
 
         userRepository.save(user);
@@ -51,13 +49,11 @@ public class AuthService {
             token
         );
 
-        // 🔥 FIX: include role in token
+      
         return authReponse;
     }
 
-    // =========================
-    // LOGIN
-    // =========================
+   
     public authReponse login(LoginRequest request) {
 
         Authentication authentication =
@@ -70,8 +66,11 @@ public class AuthService {
 
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        if(!user.isActive()) {
+            throw new RuntimeException("User account is deactivated");
+          }
 
-        // 🔥 FIX: include role in token
+        
         String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
         return new authReponse(
             user.getId(),

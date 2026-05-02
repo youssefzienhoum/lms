@@ -2,13 +2,17 @@ package com.lms.lms.Controller;
 
 import com.lms.lms.Services.AdminUserService;
 import com.lms.lms.DTOS.UserRespones;
+import com.lms.lms.DTOS.CreateUserRequest;
 import com.lms.lms.DTOS.UpdateRoleRequest;
 import lombok.RequiredArgsConstructor;
 
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -17,11 +21,16 @@ public class AdminUserController {
 
     private final AdminUserService adminUserService;
 
+    @PostMapping("/CreateUser")
+      public void createUser( @RequestBody CreateUserRequest request) {
+        adminUserService.createUser(request);
+    }
+
     @GetMapping
-   
     public List<UserRespones> getAllUsers() {
         return adminUserService.getAllUsers();
     }
+
 
     
     @GetMapping("/students")
