@@ -38,9 +38,9 @@ public class QuistionService {
         if (!quiz.getLesson().getCourse().getInstructor().getId().equals(instructor.getId())) {
                 throw new RuntimeException("You don't own this quiz");
         }
-        // if(quiz.getTotalQuestions() == null && quiz.getQuestions().size() <= quiz.getTotalQuestions()) {
-        //         throw new RuntimeException("Quiz already has the maximum number of questions");
-        // }
+        if(quiz.getTotalQuestions() != null && quiz.getQuestions().size() >= quiz.getTotalQuestions()) {
+                throw new RuntimeException("Quiz already has the maximum number of questions");
+        }
         Question question = buildQuestion(dto);
         question.setQuiz(quiz);
         Question saved = questionRepository.save(question);
@@ -58,7 +58,16 @@ public class QuistionService {
         if (!exam.getCourse().getInstructor().getId().equals(instructor.getId())) {
                 throw new RuntimeException("You don't own this exam");
         }
+        if(exam.getTotalQuestions() != null && exam.getQuestions().size() >= exam.getTotalQuestions()) {
+                throw new RuntimeException("Exam already has the maximum number of questions");
+        }
+        boolean exists = questionRepository.findByCourseExamIdOrderByQuestionOrder(ExamId)
+                .stream()
+                .anyMatch(q -> q.getQuestionText().equalsIgnoreCase(dto.questionText()));
 
+    if (exists) {
+        throw new RuntimeException("This question already exists in this exam");
+    }
         Question question = buildQuestion(dto);
         question.setCourseExam(exam);
 
@@ -158,6 +167,7 @@ public class QuistionService {
                 if (question.getQuiz() == null || !question.getQuiz().getId().equals(quizId)) {
                         throw new RuntimeException("Question does not belong to this quiz");
                 }
+                
                 questionRepository.delete(question);
         }
      

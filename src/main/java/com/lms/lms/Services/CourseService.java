@@ -118,6 +118,7 @@ public class CourseService implements ICourseService {
         response.setTotalLessons(saved.getTotalLessons());
         response.setTotalDuration(saved.getTotalDuration());
         response.setInstructorId(saved.getInstructor().getId());
+        response.setInstructorName(saved.getInstructor().getFirstName());
         response.setCategoryId(saved.getCategory().getId());
         response.setCreatedAt(saved.getCreatedAt());
         // response.setUpdatedAt(saved.getUpdatedAt());

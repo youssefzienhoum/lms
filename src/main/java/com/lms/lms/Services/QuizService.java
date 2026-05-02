@@ -13,6 +13,7 @@ import com.lms.lms.DTOS.QuestionRequestDto;
 import com.lms.lms.DTOS.QuestionResponse;
 import com.lms.lms.DTOS.QuizRequestDto;
 import com.lms.lms.DTOS.QuizResponse;
+import com.lms.lms.DTOS.QuizResponseDto;
 import com.lms.lms.DTOS.QuizSubmissionRequest;
 import com.lms.lms.Entity.Answer;
 import com.lms.lms.Entity.Course;
@@ -35,21 +36,15 @@ import com.lms.lms.Repo.QuizRepository;
 import com.lms.lms.Repo.UserRepository;
 
 import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class QuizService {
     private final EnrollmentRepository enrollmentRepository;
         private final CourseRepository courseRepository;
         private final QuizRepository quizRepository;
         private final QuizAttemptRepository quizAttemptRepository;
-        private final CourseExamRepository courseExamRepository;
-        private final ExamAttemptRepository examAttemptRepository;
-        private final CourseProgressRepository courseProgressRepository;
         private final LessonRepository lessonRepository;
-        private final CertificateRepository certificateRepository;
         private final AnswerRepository answerRepository;
-        private final QuestionRepository questionRepository;
         private final UserRepository userRepository;
 
         public QuizResponse CreeateQuiz(QuizRequestDto dto) {
@@ -68,6 +63,7 @@ public class QuizService {
         if (!lesson.getCourse().getId().equals(course.getId())) {
             throw new RuntimeException("This lesson does not belong to the specified course");
         }
+        
 
         Quiz quiz = new Quiz();
         quiz.setTitle(dto.getTitle());
@@ -77,9 +73,8 @@ public class QuizService {
         quiz.setPublished(dto.getPublished());
         quiz.setLesson(lesson);
         quiz.getLesson().getCourse().setInstructor(instructor);
-
-        Quiz saved = quizRepository.save(quiz);
-        return QuizResponse.fromEntity(saved);
+        
+       return QuizResponse.fromEntity(quizRepository.save(quiz));
 
     }
 

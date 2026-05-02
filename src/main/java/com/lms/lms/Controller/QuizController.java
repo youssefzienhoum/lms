@@ -8,17 +8,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.lms.lms.DTOS.AttemptResultResponse;
 import com.lms.lms.DTOS.QuizRequestDto;
 import com.lms.lms.DTOS.QuizResponse;
+import com.lms.lms.DTOS.QuizResponseDto;
 import com.lms.lms.DTOS.QuizSubmissionRequest;
 import com.lms.lms.Services.QuizAndExamService;
 import com.lms.lms.Services.QuizService;
 
 import lombok.RequiredArgsConstructor;
 
-@Deprecated
+@RestController
 @RequestMapping("/api/quizzes")
 @RequiredArgsConstructor
 public class QuizController {

@@ -10,8 +10,8 @@ import lombok.Setter;
 @Getter
 public class ExamRequestDto {
     private String title;
-    private Integer timeLimit;
-    private Integer totalQuestions;
+    private Integer timeLimit = 90;
+    private Integer totalQuestions = 30;
     private BigDecimal passingScore;
     private Long courseId;
     private Long instructorId;

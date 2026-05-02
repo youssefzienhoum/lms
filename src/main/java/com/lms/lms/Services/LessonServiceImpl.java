@@ -62,7 +62,7 @@ public class LessonServiceImpl{
         response.setDuration(saved.getDuration());
         response.setLessonOrder(saved.getLessonOrder());
         // response.setPreview(saved.get());
-        // response.setPreview(saved.getpreview());
+        response.setPreview(saved.isPreview());
         response.setCourseId(saved.getCourse().getId());
         response.setCreatedAt(saved.getCreatedAt());
         return response;
@@ -141,7 +141,7 @@ public class LessonServiceImpl{
             response.setThumbnailUrl(l.getThumbnailUrl());
             response.setDuration(l.getDuration());
             response.setLessonOrder(l.getLessonOrder());
-            // response.setPreview(l.getPreview());
+            response.setPreview(l.isPreview());
             response.setCourseId(l.getCourse().getId());
             response.setCreatedAt(l.getCreatedAt());
             result.add(response);

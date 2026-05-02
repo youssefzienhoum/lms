@@ -23,7 +23,7 @@ public class CourseExam {
     private Integer timeLimit = 90;
     
     @Column(name = "total_questions")
-    private Integer totalQuestions;
+    private Integer totalQuestions = 30;
     
      @Column(precision = 4, scale = 2)
     private BigDecimal passingScore = new BigDecimal("70.00");

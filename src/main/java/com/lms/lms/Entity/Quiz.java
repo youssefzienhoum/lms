@@ -21,10 +21,10 @@ public class Quiz {
     private String title;
     
     @SuppressWarnings("unused")
-    private Integer timeLimit;
+    private Integer timeLimit = 20;
     
     @Column(name = "total_questions")
-    private Integer totalQuestions;
+    private Integer totalQuestions = 5;
     
     @Column(precision = 5, scale = 2)
     private BigDecimal passingScore = new BigDecimal("70.00");
