@@ -2,6 +2,7 @@ package com.lms.lms.Controller;
 
 import org.springframework.web.bind.annotation.*;
 import com.lms.lms.DTOS.CategoryRequest;
+import com.lms.lms.DTOS.CategoryResponse;
 import com.lms.lms.Entity.Category;
 import com.lms.lms.Services.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,11 @@ public class CategoryController {
     private final CategoryService categoryService;
 
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
-    }
+    
+   @GetMapping("/all")
+public ResponseEntity<List<CategoryResponse>> getAllCategories() {
+    return ResponseEntity.ok(categoryService.getAllCategories());
+}
 
    
     @PostMapping("/create")
