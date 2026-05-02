@@ -18,9 +18,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // =========================
+   
     // USER NOT FOUND
-    // =========================
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(
             RuntimeException ex,
