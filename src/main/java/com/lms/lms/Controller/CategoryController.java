@@ -22,6 +22,7 @@ public class CategoryController {
 
     
    @GetMapping("/all")
+   @PreAuthorize("hasRole('ADMIN') or hasRole('INSTRUCTOR') ")
 public ResponseEntity<List<CategoryResponse>> getAllCategories() {
     return ResponseEntity.ok(categoryService.getAllCategories());
 }
