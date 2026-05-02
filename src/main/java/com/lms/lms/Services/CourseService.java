@@ -100,6 +100,7 @@ public class CourseService implements ICourseService {
         course.setDescription(dto.getDescription());
         course.setThumbnailUrl(dto.getThumbnailUrl());
         course.setFree(dto.getFree());
+
         course.setTotalLessons(dto.getTotalLessons());
         course.setTotalDuration(dto.getTotalDuration());
         course.setInstructor(instructor);

@@ -101,7 +101,7 @@ public class LessonServiceImpl{
         response.setThumbnailUrl(saved.getThumbnailUrl());
         response.setDuration(saved.getDuration());
         response.setLessonOrder(saved.getLessonOrder());
-        // response.setPreview(saved.getPreview());
+        response.setPreview(saved.isPreview());
         response.setCourseId(saved.getCourse().getId());
         response.setCreatedAt(saved.getCreatedAt());
         return response;
