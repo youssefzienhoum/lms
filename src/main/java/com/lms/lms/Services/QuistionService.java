@@ -41,6 +41,13 @@ public class QuistionService {
         if(quiz.getTotalQuestions() != null && quiz.getQuestions().size() >= quiz.getTotalQuestions()) {
                 throw new RuntimeException("Quiz already has the maximum number of questions");
         }
+         boolean exists = questionRepository.findByQuizIdOrderByQuestionOrder(quizId)
+                .stream()
+                .anyMatch(q -> q.getQuestionText().equalsIgnoreCase(dto.questionText()));
+
+        if (exists && quiz.getId().equals(quizId)) {
+                throw new RuntimeException("This question already exists in this exam");
+        }
         Question question = buildQuestion(dto);
         question.setQuiz(quiz);
         Question saved = questionRepository.save(question);
@@ -65,7 +72,7 @@ public class QuistionService {
                 .stream()
                 .anyMatch(q -> q.getQuestionText().equalsIgnoreCase(dto.questionText()));
 
-    if (exists) {
+    if (exists && exam.getId().equals(ExamId)) {
         throw new RuntimeException("This question already exists in this exam");
     }
         Question question = buildQuestion(dto);
