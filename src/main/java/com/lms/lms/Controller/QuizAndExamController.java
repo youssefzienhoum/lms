@@ -8,23 +8,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.lms.lms.DTOS.AnswerOptionResponse;
-import com.lms.lms.DTOS.AnswerRequestDto;
 import com.lms.lms.DTOS.AttemptResultResponse;
 import com.lms.lms.DTOS.ExamRequestDto;
 import com.lms.lms.DTOS.ExamResponse;
 import com.lms.lms.DTOS.ExamSubmissionRequest;
-import com.lms.lms.DTOS.QuestionRequestDto;
-import com.lms.lms.DTOS.QuestionResponse;
-import com.lms.lms.DTOS.QuestionResponseDto;
-import com.lms.lms.DTOS.QuizRequestDto;
-import com.lms.lms.DTOS.QuizResponse;
-import com.lms.lms.DTOS.QuizSubmissionRequest;
+
 import com.lms.lms.DTOS.StudentProgressResponse;
 import com.lms.lms.Services.QuizAndExamService;
 import lombok.RequiredArgsConstructor;
@@ -37,39 +28,11 @@ public class QuizAndExamController {
         private final QuizAndExamService quizAndExamService;
         
     
-    
-    @PostMapping("/create-quiz")
-    @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<QuizResponse> createQuiz(
-        @RequestBody QuizRequestDto dto) {
-        return ResponseEntity.ok(quizAndExamService.CreeateQuiz(dto));
-    }
-
-    @DeleteMapping("/delete-quiz/{quizId}")
-    @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<Void> deleteQuiz(@PathVariable Long quizId) {
-        quizAndExamService.DeleteQuiz(quizId);
-        return ResponseEntity.noContent().build();
-    }
 
       // Take lesson quiz (fetch)
-    @GetMapping("/courses/{courseId}/lessons/{lessonId}/quiz")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<QuizResponse> getLessonQuiz(
-            @PathVariable Long courseId,
-            @PathVariable Long lessonId) {
-        return ResponseEntity.ok(quizAndExamService.getLessonQuiz(courseId, lessonId));
-    }
+    
 
-    // Take lesson quiz (submit)
-    @PostMapping("/courses/{courseId}/quiz/submit")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<AttemptResultResponse> submitLessonQuiz(
-            @PathVariable Long courseId,
-            @RequestBody QuizSubmissionRequest request) {
-        return ResponseEntity.ok(quizAndExamService.submitLessonQuiz(courseId, request));
-    }
-
+   
     @PostMapping("/create-exam")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<ExamResponse> CreateExam(
@@ -118,63 +81,10 @@ public class QuizAndExamController {
     }
 
     // Quiz questions
-@PostMapping("/quizzes/{quizId}/questions")
-public ResponseEntity<QuestionResponse> addQuizQuestion(
-        @PathVariable Long quizId,
-        @RequestBody QuestionRequestDto dto) {
-    return ResponseEntity.ok(quizAndExamService.addQuestionQuiz(quizId, dto));
-}
 
-@DeleteMapping("/quizzes/{quizId}/questions/{questionId}")
-public ResponseEntity<Void> deleteQuizQuestion(
-        @PathVariable Long quizId,
-        @PathVariable Long questionId) {
-    quizAndExamService.deleteQuestionFromQuiz(quizId, questionId);
-    return ResponseEntity.noContent().build();
-}
 
-// Exam questions
-@PostMapping("/exams/{examId}/questions")
-public ResponseEntity<QuestionResponse> addExamQuestion(
-        @PathVariable Long examId,
-        @RequestBody QuestionRequestDto dto) {
-    return ResponseEntity.ok(quizAndExamService.addQuestionToExam(examId, dto));
-}
 
-@DeleteMapping("/exams/{examId}/questions/{questionId}")
-public ResponseEntity<Void> deleteExamQuestion(
-        @PathVariable Long examId,
-        @PathVariable Long questionId) {
-    quizAndExamService.deleteQuestionForExam(examId, questionId);
-    return ResponseEntity.noContent().build();
-}
 
-//     @PostMapping("/questions/{questionId}/answers")
-// public ResponseEntity<AnswerOptionResponse> addAnswer(
-//         @PathVariable Long questionId,
-//         @RequestBody AnswerRequestDto dto) {
-//     return ResponseEntity.ok(quizAndExamService.addAnswerToQuestion(questionId, dto));
-// }
+   
 
-@PutMapping("/questions/{questionId}/answers/{answerId}")
-public ResponseEntity<AnswerOptionResponse> updateAnswer(
-        @PathVariable Long questionId,
-        @PathVariable Long answerId,
-        @RequestBody AnswerRequestDto dto) {
-    return ResponseEntity.ok(quizAndExamService.updateAnswer(questionId, answerId, dto));
-}
-
-@DeleteMapping("/questions/{questionId}/answers/{answerId}")
-public ResponseEntity<Void> deleteAnswer(
-        @PathVariable Long questionId,
-        @PathVariable Long answerId) {
-    quizAndExamService.deleteAnswer(questionId, answerId);
-    return ResponseEntity.noContent().build();
-}
-
-@GetMapping("/questions/{questionId}/answers")
-public ResponseEntity<List<AnswerOptionResponse>> getAnswers(
-        @PathVariable Long questionId) {
-    return ResponseEntity.ok(quizAndExamService.getAnswersByQuestion(questionId));
-}
 }
