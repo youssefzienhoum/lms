@@ -157,6 +157,9 @@ public class QuizAndExamService {
         if (!quiz.getLesson().getCourse().getInstructor().getId().equals(instructor.getId())) {
                 throw new RuntimeException("You don't own this quiz");
         }
+        if(quiz.getTotalQuestions() != null && quiz.getQuestions().size() >= quiz.getTotalQuestions()) {
+                throw new RuntimeException("Quiz already has the maximum number of questions");
+        }
         Question question = buildQuestion(dto);
         question.setQuiz(quiz);
         Question saved = questionRepository.save(question);
