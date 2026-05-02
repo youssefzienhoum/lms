@@ -64,6 +64,46 @@ public class EnrollmentService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
-    }   
+    }
+
+    // instructor can view students enrolled in their course
+    public List<EnrollmentResponse> getStudentsInCourse(Long courseId) {
+        User student = getLoggedInStudent();
+        User instructor = getLoggedInInstructor();
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (!course.getInstructor().getId().equals(instructor.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+        if(!course.isPublished()) {
+            throw new RuntimeException("Course is not published yet");
+        }
+        if(course.getEnrollments().isEmpty()) {
+            throw new RuntimeException("No students enrolled in this course yet");
+        }
+        return enrollmentRepository.findByStudentIdAndCourseId(student.getId(), course.getId())
+                .stream().map(EnrollmentResponse::fromEntity).collect(Collectors.toList());
+    }
+    private User getLoggedInInstructor() {
+    var auth = SecurityContextHolder.getContext().getAuthentication();
+
+    if (auth == null || !auth.isAuthenticated()) {
+        throw new RuntimeException("User not authenticated");
+    }
+
     
+    boolean isInstructor = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_INSTRUCTOR"));
+
+    if (!isInstructor) {
+        throw new RuntimeException("Access denied: Not an instructor");
+    }
+
+    String email = auth.getName();
+
+    return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Instructor not found"));
+}
 }

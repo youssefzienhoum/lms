@@ -44,7 +44,7 @@ public class CourseController {
             .body(courseService.createCourse(dto));
     }
 
-    @PutMapping("/updatecourses/{courseId}/{currentUser}")
+    @PutMapping("/updatecourses/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponseDto> updateCourse(
             @PathVariable Long courseId,

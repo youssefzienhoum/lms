@@ -4,6 +4,7 @@ import com.lms.lms.DTOS.CourseDTO;
 import com.lms.lms.DTOS.CourseRequestDto;
 import com.lms.lms.DTOS.CourseResponseDto;
 import com.lms.lms.DTOS.ExamScoreResponse;
+import com.lms.lms.DTOS.LessonResponseDto;
 import com.lms.lms.DTOS.QuizScoreResponse;
 import com.lms.lms.DTOS.StudentProgressResponse;
 import com.lms.lms.Entity.Category;
@@ -55,11 +56,11 @@ public class CourseService implements ICourseService {
     course.setDescription(dto.getDescription());
     course.setThumbnailUrl(dto.getThumbnailUrl());
     course.setFree(dto.getFree());
+    course.setPublished(dto.getPublished());
     course.setTotalLessons(dto.getTotalLessons());
     course.setTotalDuration(dto.getTotalDuration());
     course.setInstructor(instructor);
     course.setCategory(category);
-
     Course saved = courseRepository.save(course);
 
     CourseResponseDto response = new CourseResponseDto();
@@ -68,8 +69,11 @@ public class CourseService implements ICourseService {
     response.setDescription(saved.getDescription());
     response.setThumbnailUrl(saved.getThumbnailUrl());
     response.setTotalLessons(saved.getTotalLessons());
+    response.setFree(saved.isFree());
+    response.setPublished(saved.isPublished());
     response.setTotalDuration(saved.getTotalDuration());
     response.setInstructorId(saved.getInstructor().getId());
+    response.setInstructorName(saved.getInstructor().getFirstName());
     response.setCategoryId(saved.getCategory().getId());
     response.setCreatedAt(saved.getCreatedAt());
 
@@ -113,14 +117,14 @@ public class CourseService implements ICourseService {
 
 //     }
     @Override
-    public CourseResponseDto updateCourse(Long courseId, CourseRequestDto dto) {
+    public CourseResponseDto updateCourse(Long courseId ,CourseRequestDto dto) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Course not found"));
         User instructor = getLoggedInInstructor();
 
 
-        if (!course.getInstructor().getId().equals(instructor)) {
+        if (!course.getInstructor().getId().equals(instructor.getId())) {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't own this course");
         }
 
@@ -145,8 +149,8 @@ public class CourseService implements ICourseService {
         response.setTitle(saved.getTitle());
         response.setDescription(saved.getDescription());
         response.setThumbnailUrl(saved.getThumbnailUrl());
-        // response.setIsFree(saved.getIsFree());
-        // response.setIsPublished(saved.getIsPublished());
+        response.setFree(saved.isFree());
+        response.setPublished(saved.isPublished());
         response.setTotalLessons(saved.getTotalLessons());
         response.setTotalDuration(saved.getTotalDuration());
         response.setInstructorId(saved.getInstructor().getId());
@@ -202,16 +206,31 @@ public class CourseService implements ICourseService {
 
         CourseResponseDto response = new CourseResponseDto();
         response.setId(c.getId());
+        response.setInstructorId(c.getInstructor().getId());
+        response.setInstructorName(c.getInstructor().getFirstName()+" "+c.getInstructor().getLastName());
         response.setTitle(c.getTitle());
         response.setDescription(c.getDescription());
         response.setThumbnailUrl(c.getThumbnailUrl());
-        // response.setIsFree(c.getIsFree());
-        // response.setIsPublished(c.getIsPublished());
+        response.setFree(c.isFree());
+        response.setPublished(c.isPublished());
         response.setTotalLessons(c.getTotalLessons());
         response.setTotalDuration(c.getTotalDuration());
-        response.setInstructorId(c.getInstructor().getId());
         response.setCategoryId(c.getCategory().getId());
         response.setCreatedAt(c.getCreatedAt());
+        response.setLessons(c.getLessons().stream().map(lesson -> {
+                LessonResponseDto lessonDto = new LessonResponseDto();
+                lessonDto.setId(lesson.getId());
+                lessonDto.setTitle(lesson.getTitle());
+                lessonDto.setDescription(lesson.getDescription());
+                lessonDto.setVideoUrl(lesson.getVideoUrl());
+                lessonDto.setThumbnailUrl(lesson.getThumbnailUrl());
+                lessonDto.setDuration(lesson.getDuration());
+                lessonDto.setLessonOrder(lesson.getLessonOrder());
+                lessonDto.setPreview(lesson.isPreview());
+                lessonDto.setCourseId(c.getId());
+                lessonDto.setCreatedAt(lesson.getCreatedAt());
+                return lessonDto;
+        }).collect(Collectors.toList()));
         return response;
     }
 //     private User getLoggedInInstructor() {

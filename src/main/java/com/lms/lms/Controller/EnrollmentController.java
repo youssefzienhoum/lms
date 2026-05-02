@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/api/enrollments")
 @RequiredArgsConstructor
@@ -40,4 +41,13 @@ public class EnrollmentController {
                 enrollmentService.getEnrolledCourses()
         );
     }
+    @GetMapping("/EnrolledStudents/{courseId}")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<List<EnrollmentResponse>> GetStudentInCourse(@PathVariable Long courseId) 
+    {
+        return ResponseEntity.ok(
+                enrollmentService.getStudentsInCourse(courseId)
+        );
+    }
+    
 }

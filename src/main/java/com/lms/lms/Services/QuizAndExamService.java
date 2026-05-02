@@ -11,17 +11,22 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.lms.lms.DTOS.AnswerOptionResponse;
+import com.lms.lms.DTOS.AnswerRequestDto;
 import com.lms.lms.DTOS.AnswerSubmission;
 import com.lms.lms.DTOS.AttemptResultResponse;
 import com.lms.lms.DTOS.ExamRequestDto;
 import com.lms.lms.DTOS.ExamResponse;
 import com.lms.lms.DTOS.ExamScoreResponse;
 import com.lms.lms.DTOS.ExamSubmissionRequest;
+import com.lms.lms.DTOS.QuestionRequestDto;
+import com.lms.lms.DTOS.QuestionResponse;
 import com.lms.lms.DTOS.QuizRequestDto;
 import com.lms.lms.DTOS.QuizResponse;
 import com.lms.lms.DTOS.QuizScoreResponse;
 import com.lms.lms.DTOS.QuizSubmissionRequest;
 import com.lms.lms.DTOS.StudentProgressResponse;
+import com.lms.lms.Entity.Answer;
 import com.lms.lms.Entity.Certificate;
 import com.lms.lms.Entity.Course;
 import com.lms.lms.Entity.CourseExam;
@@ -29,6 +34,7 @@ import com.lms.lms.Entity.CourseProgress;
 import com.lms.lms.Entity.Enrollment;
 import com.lms.lms.Entity.ExamAttempt;
 import com.lms.lms.Entity.Lesson;
+import com.lms.lms.Entity.Question;
 import com.lms.lms.Entity.Quiz;
 import com.lms.lms.Entity.QuizAttempt;
 import com.lms.lms.Entity.User;
@@ -48,6 +54,7 @@ public class QuizAndExamService {
         private final LessonRepository lessonRepository;
         private final CertificateRepository certificateRepository;
         private final AnswerRepository answerRepository;
+        private final QuestionRepository questionRepository;
         private final UserRepository userRepository;
 
     public QuizResponse CreeateQuiz(QuizRequestDto dto) {
@@ -141,6 +148,39 @@ public class QuizAndExamService {
         return new AttemptResultResponse(saved.getId(), "QUIZ", score,
                 quiz.getPassingScore(), passed, totalQuestions, correctAnswers);
     }
+        
+    public  QuestionResponse addQuestionQuiz(Long quizId, QuestionRequestDto dto) {
+        User instructor = getLoggedInInstructor();
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+        if (!quiz.getLesson().getCourse().getInstructor().getId().equals(instructor.getId())) {
+                throw new RuntimeException("You don't own this quiz");
+        }
+        Question question = buildQuestion(dto);
+        question.setQuiz(quiz);
+        Question saved = questionRepository.save(question);
+        return QuestionResponse.fromEntity(saved);
+        }
+
+        public void deleteQuestionFromQuiz(Long quizId, Long questionId) {
+                User instructor = getLoggedInInstructor();
+
+                Quiz quiz = quizRepository.findById(quizId)
+                        .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+                if (!quiz.getLesson().getCourse().getInstructor().getId().equals(instructor.getId())) {
+                        throw new RuntimeException("You don't own this quiz");
+                }
+
+                Question question = questionRepository.findById(questionId)
+                        .orElseThrow(() -> new RuntimeException("Question not found"));
+
+                if (question.getQuiz() == null || !question.getQuiz().getId().equals(quizId)) {
+                        throw new RuntimeException("Question does not belong to this quiz");
+                }
+                questionRepository.delete(question);
+        }
 
     // Take final exam (fetch)
     public ExamResponse CreateExam(ExamRequestDto dto) {
@@ -161,6 +201,8 @@ public class QuizAndExamService {
         return ExamResponse.fromEntity(saved);
     }
 
+
+
     public void deleteExam(Long examId) {
         User instructor = getLoggedInInstructor();
         CourseExam exam = courseExamRepository.findById(examId)
@@ -169,9 +211,64 @@ public class QuizAndExamService {
                 throw new RuntimeException("You don't own this course");
         }
         courseExamRepository.delete(exam);
-    }
+}
 
-    public ExamResponse getCourseExam(Long courseId) {
+        public QuestionResponse addQuestionToExam(Long ExamId,QuestionRequestDto dto) {
+        User instructor = getLoggedInInstructor();
+
+        CourseExam exam = courseExamRepository.findById(ExamId)
+                .orElseThrow(() -> new RuntimeException("Exam not found"));
+
+        if (!exam.getCourse().getInstructor().getId().equals(instructor.getId())) {
+                throw new RuntimeException("You don't own this exam");
+        }
+
+        Question question = buildQuestion(dto);
+        question.setCourseExam(exam);
+
+        Question saved = questionRepository.save(question);
+        return QuestionResponse.fromEntity(saved);
+}
+        
+        public void deleteQuestionForExam(Long questionId,Long examId) {
+        User instructor = getLoggedInInstructor();
+
+        CourseExam exam = courseExamRepository.findById(examId)
+                .orElseThrow(() -> new RuntimeException("Exam not found"));
+
+        if (!exam.getCourse().getInstructor().getId().equals(instructor.getId())) {
+                throw new RuntimeException("You don't own this exam");
+        }
+
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        if (question.getCourseExam() == null || !question.getCourseExam().getId().equals(examId)) {
+                throw new RuntimeException("Question does not belong to this exam");
+        }
+
+        questionRepository.delete(question);
+
+}
+
+// public QuestionResponse updateQuestionForExam(Long questionId, QuestionRequestDto dto) {
+//         User instructor = getLoggedInInstructor();
+
+//         Question question = questionRepository.findById(questionId)
+//                 .orElseThrow(() -> new RuntimeException("Question not found"));
+
+//         if (!question.getCourseExam().getCourse().getInstructor().getId().equals(instructor.getId())) {
+//                 throw new RuntimeException("You don't own this question");
+//         }
+
+//         question.setQuestionText(dto.getQuestionText());
+//         question.setPoints(dto.getPoints());
+
+//         Question saved = questionRepository.save(question);
+//         return QuestionResponse.fromEntity(saved);
+// }
+
+public ExamResponse getCourseExam(Long courseId) {
         User student = getLoggedInStudent();
 
         enrollmentRepository.findByStudentIdAndCourseId(student.getId(), courseId)
@@ -184,7 +281,7 @@ public class QuizAndExamService {
                 .findByStudentAndCourseIdOrderByAttemptNumberDesc(student, courseId);
 
         if (previousAttempts.size() >= exam.getMaxAttempts()) {
-            throw new RuntimeException("You have reached the maximum number of attempts for this exam");
+                throw new RuntimeException("You have reached the maximum number of attempts for this exam");
         }
 
         return ExamResponse.fromEntity(exam);
@@ -345,7 +442,7 @@ public class QuizAndExamService {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
     }
 
-    private int gradeAnswers(List<AnswerSubmission> answers) {
+        private int gradeAnswers(List<AnswerSubmission> answers) {
         int correct = 0;
         for (AnswerSubmission submission : answers) {
             boolean isCorrect = answerRepository
@@ -357,12 +454,13 @@ public class QuizAndExamService {
         return correct;
     }
 
-    private BigDecimal calculateScore(int correctAnswers, int totalQuestions) {
+        private BigDecimal calculateScore(int correctAnswers, int totalQuestions) {
         if (totalQuestions == 0) return BigDecimal.ZERO;
         return BigDecimal.valueOf(correctAnswers * 100.0 / totalQuestions)
                 .setScale(2, RoundingMode.HALF_UP);
     }
-       private User getLoggedInInstructor() {
+        
+        private User getLoggedInInstructor() {
     var auth = SecurityContextHolder.getContext().getAuthentication();
 
     if (auth == null || !auth.isAuthenticated()) {
@@ -381,6 +479,122 @@ public class QuizAndExamService {
 
     return userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Instructor not found"));
+}
+
+        // public AnswerOptionResponse addAnswerToQuestion(Long questionId, AnswerRequestDto dto) {
+        //         User instructor = getLoggedInInstructor();
+
+        //         Question question = questionRepository.findById(questionId)
+        //                 .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        //         validateInstructorOwnsQuestion(instructor, question);
+
+        //         Answer answer = new Answer();
+        //         answer.setAnswerText(dto.answerText());
+        //         answer.setCorrect(dto.correct());
+        //         answer.setAnswerOrder(dto.answerOrder());
+        //         answer.setQuestion(question);
+
+        //         Answer saved = answerRepository.save(answer);
+        //         return AnswerOptionResponse.fromEntity(saved);
+        // }
+
+        public AnswerOptionResponse updateAnswer(Long questionId, Long answerId, AnswerRequestDto dto) {
+                User instructor = getLoggedInInstructor();
+
+                Question question = questionRepository.findById(questionId)
+                        .orElseThrow(() -> new RuntimeException("Question not found"));
+
+                validateInstructorOwnsQuestion(instructor, question);
+
+                Answer answer = answerRepository.findById(answerId)
+                        .orElseThrow(() -> new RuntimeException("Answer not found"));
+
+                if (!answer.getQuestion().getId().equals(questionId)) {
+                        throw new RuntimeException("Answer does not belong to this question");
+                }
+
+                answer.setAnswerText(dto.answerText());
+                answer.setCorrect(dto.correct());
+                answer.setAnswerOrder(dto.answerOrder());
+
+                Answer saved = answerRepository.save(answer);
+                return AnswerOptionResponse.fromEntity(saved);
+        }
+
+        public void deleteAnswer(Long questionId, Long answerId) {
+                User instructor = getLoggedInInstructor();
+
+                Question question = questionRepository.findById(questionId)
+                        .orElseThrow(() -> new RuntimeException("Question not found"));
+
+                validateInstructorOwnsQuestion(instructor, question);
+
+                Answer answer = answerRepository.findById(answerId)
+                        .orElseThrow(() -> new RuntimeException("Answer not found"));
+
+                if (!answer.getQuestion().getId().equals(questionId)) {
+                        throw new RuntimeException("Answer does not belong to this question");
+                }
+
+                answerRepository.delete(answer);
+        }
+
+        public List<AnswerOptionResponse> getAnswersByQuestion(Long questionId) {
+                User instructor = getLoggedInInstructor();
+
+                Question question = questionRepository.findById(questionId)
+                        .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        validateInstructorOwnsQuestion(instructor, question);
+
+        return answerRepository.findByQuestionIdOrderByAnswerOrder(questionId)
+            .stream()
+            .map(AnswerOptionResponse::fromEntity)
+            .toList();
+        }
+
+
+        private void validateInstructorOwnsQuestion(User instructor, Question question) {
+                // Question belongs to a quiz
+                if (question.getQuiz() != null) {
+                if (!question.getQuiz().getLesson().getCourse().getInstructor().getId()
+                .equals(instructor.getId())) {
+                        throw new RuntimeException("You don't own this question");
+                }
+                return;
+        }
+    // Question belongs to an exam
+                if (question.getCourseExam() != null) {
+                if (!question.getCourseExam().getCourse().getInstructor().getId()
+                        .equals(instructor.getId())) {
+                        throw new RuntimeException("You don't own this question");
+                }
+                return;
+                }
+                throw new RuntimeException("Question is not linked to any quiz or exam");
+        }
+
+private Question buildQuestion(QuestionRequestDto dto) {
+    Question question = new Question();
+    question.setQuestionText(dto.questionText());
+    question.setQuestionType(Question.QuestionType.valueOf(dto.questionType()));
+    question.setQuestionOrder(dto.questionOrder());
+    question.setPoints(dto.points() != null ? dto.points() : 1);
+
+    if (dto.answers() != null && !dto.answers().isEmpty()) {
+        List<Answer> answers = dto.answers().stream().map(a -> {
+            Answer answer = new Answer();
+            answer.setAnswerText(a.answerText());
+            answer.setCorrect(a.correct());
+            answer.setAnswerOrder(a.answerOrder());
+            answer.setQuestion(question);
+            return answer;
+        }).toList();
+        question.setAnswers(answers);
+    }
+
+    return question;
 }
 }
 

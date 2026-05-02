@@ -27,11 +27,11 @@ public class LessonController {
                 .body(lessonService.createLesson( dto));
     }
 
-    @PutMapping("/update/{lessonId}/{instructorId}")
+    @PutMapping("/update/{lessonId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<LessonResponseDto> updateLesson(
             @PathVariable Long lessonId,
-            @PathVariable Long instructorId,
+            @RequestParam Long instructorId,
             @RequestBody LessonRequestDto dto) {
         return ResponseEntity.ok(lessonService.updateLesson(lessonId, instructorId, dto));
     }

@@ -54,7 +54,7 @@ public class Course {
     // timestamps
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     // Relationships
     @ManyToOne

@@ -35,6 +35,9 @@ public class LessonServiceImpl{
         if (!course.getInstructor().getId().equals(instructor.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't own this course");
         }
+        if(course.getTotalLessons() != null && course.getTotalLessons() <= course.getLessons().size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course has reached maximum number of lessons");
+        }
 
         Lesson lesson = new Lesson();
         lesson.setTitle(dto.getTitle());

@@ -2,21 +2,22 @@ package com.lms.lms.DTOS;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 @Data
 public class CourseResponseDto {
     private Long id;
+    private Long instructorId;
+    private String instructorName;
     private String title;
     private String description;
     private String thumbnailUrl;
-    private BigDecimal price;
-    private Boolean Free;
-    private Boolean Published;
+    private Boolean free;
+    private Boolean published;
     private Integer totalLessons;
     private Integer totalDuration;
-    private Long instructorId;
     private Long categoryId;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private List<LessonResponseDto> lessons;
 }
