@@ -116,8 +116,20 @@ public class CourseService implements ICourseService {
         response.setThumbnailUrl(saved.getThumbnailUrl());
         response.setFree(saved.isFree());
         response.setPublished(saved.isPublished());
-        response.setTotalLessons(saved.getTotalLessons());
-        response.setTotalDuration(saved.getTotalDuration());
+        response.setLessons(course.getLessons().stream().map(lesson -> {
+                LessonResponseDto lessonDto = new LessonResponseDto();
+                lessonDto.setId(lesson.getId());
+                lessonDto.setTitle(lesson.getTitle());
+                lessonDto.setDescription(lesson.getDescription());
+                lessonDto.setVideoUrl(lesson.getVideoUrl());
+                lessonDto.setThumbnailUrl(lesson.getThumbnailUrl());
+                lessonDto.setDuration(lesson.getDuration());
+                lessonDto.setLessonOrder(lesson.getLessonOrder());
+                lessonDto.setPreview(lesson.isPreview());
+                lessonDto.setCourseId(course.getId());
+                lessonDto.setCreatedAt(lesson.getCreatedAt());
+                return lessonDto;
+        }).collect(Collectors.toList()));        response.setTotalDuration(saved.getTotalDuration());
         response.setInstructorId(saved.getInstructor().getId());
         response.setInstructorName(saved.getInstructor().getFirstName());
         response.setCategoryId(saved.getCategory().getId());
