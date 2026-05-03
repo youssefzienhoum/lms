@@ -67,7 +67,7 @@ public class EnrollmentService {
     }
 
     // instructor can view students enrolled in their course
-    public List<EnrollmentResponse> getStudentsInCourse(Long courseId) {
+    public List<EnrollmentResponse> getStudentsInCourse(Long studentId,Long courseId) {
         User student = getLoggedInStudent();
         User instructor = getLoggedInInstructor();
 
@@ -83,7 +83,7 @@ public class EnrollmentService {
         if(course.getEnrollments().isEmpty()) {
             throw new RuntimeException("No students enrolled in this course yet");
         }
-        return enrollmentRepository.findByStudentIdAndCourseId(student.getId(), course.getId())
+        return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId)
                 .stream().map(EnrollmentResponse::fromEntity).collect(Collectors.toList());
     }
     private User getLoggedInInstructor() {

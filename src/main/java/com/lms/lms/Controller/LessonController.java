@@ -46,7 +46,7 @@ public class LessonController {
     }
 
     @GetMapping("/course/{courseId}")
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('STUDENT')") // Both instructors and students can view lessons
     public ResponseEntity<List<LessonResponseDto>> getCourseLessons(
             @PathVariable Long courseId) {
         return ResponseEntity.ok(lessonService.getCourseLessons(courseId));
