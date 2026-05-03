@@ -1,6 +1,7 @@
 package com.lms.lms.Services;
 
 import com.lms.lms.DTOS.CategoryRequest;
+import com.lms.lms.DTOS.CategoryResponse;
 import com.lms.lms.Entity.Category;
 import com.lms.lms.Repo.*;
 
@@ -15,12 +16,16 @@ public class CategoryService {
     
     private final CategoryRepository categoryRepository;
     
-    public List<Category> getAllCategories() {
+   public List<CategoryResponse> getAllCategories() {
 
-
-        return categoryRepository.findAll();
-    }
-
+    return categoryRepository.findAll()
+            .stream()
+            .map(category -> new CategoryResponse(
+                    category.getId(),
+                    category.getName()
+            ))
+            .toList();
+}
     public Category create(CategoryRequest request) {
 
 
