@@ -41,12 +41,12 @@ public class EnrollmentController {
                 enrollmentService.getEnrolledCourses()
         );
     }
-    @GetMapping("/EnrolledStudents/{courseId}/{studentId}")
+    @GetMapping("/EnrolledStudents/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<List<EnrollmentResponse>> GetStudentInCourse(@PathVariable Long courseId, @PathVariable Long studentId) 
+    public ResponseEntity<List<EnrollmentResponse>> GetStudentInCourse(@PathVariable Long courseId) 
     {
         return ResponseEntity.ok(
-                enrollmentService.getStudentsInCourse(studentId,courseId)
+                enrollmentService.getStudentsInCourse(courseId)
         );
     }
     
